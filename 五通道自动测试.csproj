@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EPPlus" Version="8.4.1" />
+    <PackageReference Include="NationalInstruments.Visa" Version="25.5.0.13" />
+    <PackageReference Include="NModbus" Version="3.0.81" />
+    <PackageReference Include="System.IO.Ports" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Config\config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

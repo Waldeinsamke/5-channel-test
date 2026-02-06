@@ -1,0 +1,41 @@
+# 编译输出目录
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+
+# Visual Studio 缓存
+.vs/
+*.user
+*.suo
+*.suo.lock
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.bak
+*~
+
+# .NET Core
+/.vs
+*.user
+*.userosscache
+*.suo
+
+# Rider
+.idea/
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# 配置文件（敏感信息）
+Config/config.json
+Config/*.json

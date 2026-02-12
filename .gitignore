@@ -39,3 +39,6 @@ Desktop.ini
 # 配置文件（敏感信息）
 Config/config.json
 Config/*.json
+
+# Trae AI 配置
+.trae/

@@ -1,5 +1,4 @@
 # 八通道地址计算逻辑完整总结（基于Channel8.cs）
-aaaaaaaa
 ## 1. 地址计算逻辑概述
 
 本文档详细总结了WinForms应用中八通道模式的地址计算逻辑，基于`Channel8.cs`文件中的`GetAddressArray()`方法实现。

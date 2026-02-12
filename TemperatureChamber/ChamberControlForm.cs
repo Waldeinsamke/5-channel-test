@@ -13,6 +13,8 @@ namespace TemperatureChamber
         public ChamberControlForm()
         {
             InitializeComponent();
+            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             InitializeChamberControl();
         }
 

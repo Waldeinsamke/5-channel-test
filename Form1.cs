@@ -28,6 +28,8 @@ namespace 五通道自动测试
         {
             _instrumentManager = instrumentManager;
             InitializeComponent();
+            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             LoadInstrumentConfig();
             InitializeTestSystem();
         }

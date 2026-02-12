@@ -27,14 +27,12 @@ namespace 五通道自动测试.Calibration
             jzchannel2 = new RadioButton();
             jzchannel1 = new RadioButton();
             gbParameters = new GroupBox();
-            HexTextbox = new TextBox();
             write4 = new Button();
             read4 = new Button();
             write3 = new Button();
             read3 = new Button();
             write2 = new Button();
             read2 = new Button();
-            sendHEx = new Button();
             lblDacLow = new Label();
             btnDownXndLow = new Button();
             lblXndHigh = new Label();
@@ -80,7 +78,6 @@ namespace 五通道自动测试.Calibration
             antenna = new RadioButton();
             modechance = new ComboBox();
             SwitchPower = new Button();
-            Calibration = new RadioButton();
             gbChannels.SuspendLayout();
             gbParameters.SuspendLayout();
             menuStrip1.SuspendLayout();
@@ -102,7 +99,7 @@ namespace 五通道自动测试.Calibration
             gbChannels.Margin = new Padding(4);
             gbChannels.Name = "gbChannels";
             gbChannels.Padding = new Padding(4);
-            gbChannels.Size = new Size(179, 177);
+            gbChannels.Size = new Size(179, 190);
             gbChannels.TabIndex = 2;
             gbChannels.TabStop = false;
             gbChannels.Text = "通道选择";
@@ -110,7 +107,7 @@ namespace 五通道自动测试.Calibration
             // jzchannel8
             // 
             jzchannel8.AutoSize = true;
-            jzchannel8.Location = new Point(93, 127);
+            jzchannel8.Location = new Point(93, 133);
             jzchannel8.Margin = new Padding(4);
             jzchannel8.Name = "jzchannel8";
             jzchannel8.Size = new Size(69, 24);
@@ -121,7 +118,7 @@ namespace 五通道自动测试.Calibration
             // jzchannel7
             // 
             jzchannel7.AutoSize = true;
-            jzchannel7.Location = new Point(93, 98);
+            jzchannel7.Location = new Point(93, 104);
             jzchannel7.Margin = new Padding(4);
             jzchannel7.Name = "jzchannel7";
             jzchannel7.Size = new Size(69, 24);
@@ -132,7 +129,7 @@ namespace 五通道自动测试.Calibration
             // jzchannel6
             // 
             jzchannel6.AutoSize = true;
-            jzchannel6.Location = new Point(93, 69);
+            jzchannel6.Location = new Point(93, 75);
             jzchannel6.Margin = new Padding(4);
             jzchannel6.Name = "jzchannel6";
             jzchannel6.Size = new Size(69, 24);
@@ -143,7 +140,7 @@ namespace 五通道自动测试.Calibration
             // jzchannel5
             // 
             jzchannel5.AutoSize = true;
-            jzchannel5.Location = new Point(93, 40);
+            jzchannel5.Location = new Point(93, 46);
             jzchannel5.Margin = new Padding(4);
             jzchannel5.Name = "jzchannel5";
             jzchannel5.Size = new Size(69, 24);
@@ -154,7 +151,7 @@ namespace 五通道自动测试.Calibration
             // jzchannel4
             // 
             jzchannel4.AutoSize = true;
-            jzchannel4.Location = new Point(20, 127);
+            jzchannel4.Location = new Point(20, 133);
             jzchannel4.Margin = new Padding(4);
             jzchannel4.Name = "jzchannel4";
             jzchannel4.Size = new Size(69, 24);
@@ -165,7 +162,7 @@ namespace 五通道自动测试.Calibration
             // jzchannel3
             // 
             jzchannel3.AutoSize = true;
-            jzchannel3.Location = new Point(20, 98);
+            jzchannel3.Location = new Point(20, 104);
             jzchannel3.Margin = new Padding(4);
             jzchannel3.Name = "jzchannel3";
             jzchannel3.Size = new Size(69, 24);
@@ -176,7 +173,7 @@ namespace 五通道自动测试.Calibration
             // jzchannel2
             // 
             jzchannel2.AutoSize = true;
-            jzchannel2.Location = new Point(20, 69);
+            jzchannel2.Location = new Point(20, 75);
             jzchannel2.Margin = new Padding(4);
             jzchannel2.Name = "jzchannel2";
             jzchannel2.Size = new Size(69, 24);
@@ -188,7 +185,7 @@ namespace 五通道自动测试.Calibration
             // 
             jzchannel1.AutoSize = true;
             jzchannel1.Checked = true;
-            jzchannel1.Location = new Point(20, 40);
+            jzchannel1.Location = new Point(20, 46);
             jzchannel1.Margin = new Padding(4);
             jzchannel1.Name = "jzchannel1";
             jzchannel1.Size = new Size(69, 24);
@@ -199,14 +196,12 @@ namespace 五通道自动测试.Calibration
             // 
             // gbParameters
             // 
-            gbParameters.Controls.Add(HexTextbox);
             gbParameters.Controls.Add(write4);
             gbParameters.Controls.Add(read4);
             gbParameters.Controls.Add(write3);
             gbParameters.Controls.Add(read3);
             gbParameters.Controls.Add(write2);
             gbParameters.Controls.Add(read2);
-            gbParameters.Controls.Add(sendHEx);
             gbParameters.Controls.Add(lblDacLow);
             gbParameters.Controls.Add(btnDownXndLow);
             gbParameters.Controls.Add(lblXndHigh);
@@ -233,18 +228,10 @@ namespace 五通道自动测试.Calibration
             gbParameters.Margin = new Padding(4);
             gbParameters.Name = "gbParameters";
             gbParameters.Padding = new Padding(4);
-            gbParameters.Size = new Size(656, 486);
+            gbParameters.Size = new Size(656, 499);
             gbParameters.TabIndex = 3;
             gbParameters.TabStop = false;
             gbParameters.Text = "校准参数";
-            // 
-            // HexTextbox
-            // 
-            HexTextbox.Location = new Point(7, 425);
-            HexTextbox.Multiline = true;
-            HexTextbox.Name = "HexTextbox";
-            HexTextbox.Size = new Size(569, 61);
-            HexTextbox.TabIndex = 26;
             // 
             // write4
             // 
@@ -303,20 +290,11 @@ namespace 五通道自动测试.Calibration
             read2.UseVisualStyleBackColor = true;
             read2.Click += read2_Click;
             // 
-            // sendHEx
-            // 
-            sendHEx.Location = new Point(582, 425);
-            sendHEx.Name = "sendHEx";
-            sendHEx.Size = new Size(74, 61);
-            sendHEx.TabIndex = 13;
-            sendHEx.Text = "send";
-            sendHEx.UseVisualStyleBackColor = true;
-            // 
             // lblDacLow
             // 
             lblDacLow.Anchor = AnchorStyles.Left;
             lblDacLow.AutoSize = true;
-            lblDacLow.Location = new Point(138, 118);
+            lblDacLow.Location = new Point(138, 124);
             lblDacLow.Name = "lblDacLow";
             lblDacLow.Size = new Size(67, 20);
             lblDacLow.TabIndex = 1;
@@ -337,7 +315,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblXndHigh.Anchor = AnchorStyles.Left;
             lblXndHigh.AutoSize = true;
-            lblXndHigh.Location = new Point(120, 187);
+            lblXndHigh.Location = new Point(120, 193);
             lblXndHigh.Name = "lblXndHigh";
             lblXndHigh.Size = new Size(110, 20);
             lblXndHigh.TabIndex = 2;
@@ -358,7 +336,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblXndLow.Anchor = AnchorStyles.Left;
             lblXndLow.AutoSize = true;
-            lblXndLow.Location = new Point(120, 258);
+            lblXndLow.Location = new Point(120, 264);
             lblXndLow.Name = "lblXndLow";
             lblXndLow.Size = new Size(104, 20);
             lblXndLow.TabIndex = 3;
@@ -368,7 +346,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblDacHigh.Anchor = AnchorStyles.Left;
             lblDacHigh.AutoSize = true;
-            lblDacHigh.Location = new Point(138, 54);
+            lblDacHigh.Location = new Point(138, 60);
             lblDacHigh.Name = "lblDacHigh";
             lblDacHigh.Size = new Size(73, 20);
             lblDacHigh.TabIndex = 0;
@@ -389,7 +367,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblAddrDacLow.Anchor = AnchorStyles.Left;
             lblAddrDacLow.AutoSize = true;
-            lblAddrDacLow.Location = new Point(243, 118);
+            lblAddrDacLow.Location = new Point(243, 124);
             lblAddrDacLow.Name = "lblAddrDacLow";
             lblAddrDacLow.Size = new Size(62, 20);
             lblAddrDacLow.TabIndex = 5;
@@ -398,7 +376,7 @@ namespace 五通道自动测试.Calibration
             // txtCalDacHigh
             // 
             txtCalDacHigh.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txtCalDacHigh.Location = new Point(318, 47);
+            txtCalDacHigh.Location = new Point(318, 53);
             txtCalDacHigh.Name = "txtCalDacHigh";
             txtCalDacHigh.Size = new Size(88, 27);
             txtCalDacHigh.TabIndex = 8;
@@ -407,7 +385,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblAddrXndHigh.Anchor = AnchorStyles.Left;
             lblAddrXndHigh.AutoSize = true;
-            lblAddrXndHigh.Location = new Point(243, 187);
+            lblAddrXndHigh.Location = new Point(243, 193);
             lblAddrXndHigh.Name = "lblAddrXndHigh";
             lblAddrXndHigh.Size = new Size(62, 20);
             lblAddrXndHigh.TabIndex = 6;
@@ -417,7 +395,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblAddrXndLow.Anchor = AnchorStyles.Left;
             lblAddrXndLow.AutoSize = true;
-            lblAddrXndLow.Location = new Point(243, 258);
+            lblAddrXndLow.Location = new Point(243, 264);
             lblAddrXndLow.Name = "lblAddrXndLow";
             lblAddrXndLow.Size = new Size(62, 20);
             lblAddrXndLow.TabIndex = 7;
@@ -438,7 +416,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblAddrDacHigh.Anchor = AnchorStyles.Left;
             lblAddrDacHigh.AutoSize = true;
-            lblAddrDacHigh.Location = new Point(243, 54);
+            lblAddrDacHigh.Location = new Point(243, 60);
             lblAddrDacHigh.Name = "lblAddrDacHigh";
             lblAddrDacHigh.Size = new Size(62, 20);
             lblAddrDacHigh.TabIndex = 4;
@@ -480,7 +458,7 @@ namespace 五通道自动测试.Calibration
             // txtCalDacLow
             // 
             txtCalDacLow.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txtCalDacLow.Location = new Point(318, 115);
+            txtCalDacLow.Location = new Point(318, 121);
             txtCalDacLow.Name = "txtCalDacLow";
             txtCalDacLow.Size = new Size(88, 27);
             txtCalDacLow.TabIndex = 9;
@@ -488,7 +466,7 @@ namespace 五通道自动测试.Calibration
             // txtCalXndHigh
             // 
             txtCalXndHigh.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txtCalXndHigh.Location = new Point(318, 184);
+            txtCalXndHigh.Location = new Point(318, 190);
             txtCalXndHigh.Name = "txtCalXndHigh";
             txtCalXndHigh.Size = new Size(88, 27);
             txtCalXndHigh.TabIndex = 10;
@@ -505,7 +483,7 @@ namespace 五通道自动测试.Calibration
             // txtCalXndLow
             // 
             txtCalXndLow.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txtCalXndLow.Location = new Point(318, 255);
+            txtCalXndLow.Location = new Point(318, 261);
             txtCalXndLow.Name = "txtCalXndLow";
             txtCalXndLow.Size = new Size(88, 27);
             txtCalXndLow.TabIndex = 11;
@@ -644,14 +622,14 @@ namespace 五通道自动测试.Calibration
             jztextlog.BorderStyle = BorderStyle.None;
             jztextlog.Location = new Point(855, 73);
             jztextlog.Name = "jztextlog";
-            jztextlog.Size = new Size(297, 307);
+            jztextlog.Size = new Size(297, 320);
             jztextlog.TabIndex = 7;
             jztextlog.Text = "";
             // 
             // dgvCalibrationResults
             // 
             dgvCalibrationResults.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvCalibrationResults.Location = new Point(855, 386);
+            dgvCalibrationResults.Location = new Point(855, 399);
             dgvCalibrationResults.Name = "dgvCalibrationResults";
             dgvCalibrationResults.RowHeadersWidth = 51;
             dgvCalibrationResults.Size = new Size(297, 241);
@@ -696,7 +674,7 @@ namespace 五通道自动测试.Calibration
             // 
             // button2
             // 
-            button2.Location = new Point(5, 566);
+            button2.Location = new Point(5, 579);
             button2.Name = "button2";
             button2.Size = new Size(843, 61);
             button2.TabIndex = 14;
@@ -725,7 +703,7 @@ namespace 五通道自动测试.Calibration
             // normal
             // 
             normal.AutoSize = true;
-            normal.Location = new Point(420, 41);
+            normal.Location = new Point(457, 42);
             normal.Name = "normal";
             normal.Size = new Size(60, 24);
             normal.TabIndex = 17;
@@ -736,7 +714,7 @@ namespace 五通道自动测试.Calibration
             // antenna
             // 
             antenna.AutoSize = true;
-            antenna.Location = new Point(499, 41);
+            antenna.Location = new Point(536, 42);
             antenna.Name = "antenna";
             antenna.Size = new Size(60, 24);
             antenna.TabIndex = 18;
@@ -763,24 +741,12 @@ namespace 五通道自动测试.Calibration
             SwitchPower.Text = "开启供电";
             SwitchPower.UseVisualStyleBackColor = true;
             // 
-            // Calibration
-            // 
-            Calibration.AutoSize = true;
-            Calibration.Location = new Point(575, 41);
-            Calibration.Name = "Calibration";
-            Calibration.Size = new Size(60, 24);
-            Calibration.TabIndex = 21;
-            Calibration.TabStop = true;
-            Calibration.Text = "校准";
-            Calibration.UseVisualStyleBackColor = true;
-            // 
             // FormCalibration
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
-            ClientSize = new Size(1157, 630);
-            Controls.Add(Calibration);
+            ClientSize = new Size(1157, 642);
             Controls.Add(SwitchPower);
             Controls.Add(modechance);
             Controls.Add(antenna);
@@ -870,7 +836,6 @@ namespace 五通道自动测试.Calibration
         private Button read3;
         private Button write2;
         private Button read2;
-        private Button sendHEx;
         private Button button2;
         private Button ultraWork;
         private Button ultraWork2;
@@ -881,7 +846,5 @@ namespace 五通道自动测试.Calibration
         private RadioButton jzchannel7;
         private ComboBox modechance;
         private Button SwitchPower;
-        private TextBox HexTextbox;
-        private RadioButton Calibration;
     }
 }

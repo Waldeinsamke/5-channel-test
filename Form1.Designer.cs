@@ -173,7 +173,7 @@ namespace 五通道自动测试
             gbInstrumentStatus.Margin = new Padding(4);
             gbInstrumentStatus.Name = "gbInstrumentStatus";
             gbInstrumentStatus.Padding = new Padding(4);
-            gbInstrumentStatus.Size = new Size(1165, 142);
+            gbInstrumentStatus.Size = new Size(1089, 142);
             gbInstrumentStatus.TabIndex = 0;
             gbInstrumentStatus.TabStop = false;
             gbInstrumentStatus.Text = "仪表状态";
@@ -181,7 +181,7 @@ namespace 五通道自动测试
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(682, 96);
+            label1.Location = new Point(779, 95);
             label1.Name = "label1";
             label1.Size = new Size(69, 20);
             label1.TabIndex = 23;
@@ -189,7 +189,7 @@ namespace 五通道自动测试
             // 
             // textBox2
             // 
-            textBox2.Location = new Point(756, 93);
+            textBox2.Location = new Point(853, 92);
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(99, 27);
             textBox2.TabIndex = 22;
@@ -292,9 +292,10 @@ namespace 五通道自动测试
             // 
             // PowerSwitch
             // 
-            PowerSwitch.Location = new Point(407, 28);
+            PowerSwitch.Font = new Font("Microsoft YaHei UI Light", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            PowerSwitch.Location = new Point(972, 25);
             PowerSwitch.Name = "PowerSwitch";
-            PowerSwitch.Size = new Size(94, 105);
+            PowerSwitch.Size = new Size(110, 105);
             PowerSwitch.TabIndex = 22;
             PowerSwitch.Text = "模块供电";
             PowerSwitch.UseVisualStyleBackColor = true;
@@ -344,7 +345,7 @@ namespace 五通道自动测试
             // lblCableLoss
             // 
             lblCableLoss.AutoSize = true;
-            lblCableLoss.Location = new Point(524, 96);
+            lblCableLoss.Location = new Point(621, 95);
             lblCableLoss.Margin = new Padding(4, 0, 4, 0);
             lblCableLoss.Name = "lblCableLoss";
             lblCableLoss.Size = new Size(39, 20);
@@ -353,7 +354,7 @@ namespace 五通道自动测试
             // 
             // txtCableLoss
             // 
-            txtCableLoss.Location = new Point(574, 93);
+            txtCableLoss.Location = new Point(671, 92);
             txtCableLoss.Margin = new Padding(4);
             txtCableLoss.Name = "txtCableLoss";
             txtCableLoss.Size = new Size(99, 27);
@@ -364,7 +365,7 @@ namespace 五通道自动测试
             // lblBoardSerialPort
             // 
             lblBoardSerialPort.AutoSize = true;
-            lblBoardSerialPort.Location = new Point(524, 51);
+            lblBoardSerialPort.Location = new Point(621, 50);
             lblBoardSerialPort.Margin = new Padding(4, 0, 4, 0);
             lblBoardSerialPort.Name = "lblBoardSerialPort";
             lblBoardSerialPort.Size = new Size(39, 20);
@@ -375,7 +376,7 @@ namespace 五通道自动测试
             // 
             cbSerialPort.DropDownStyle = ComboBoxStyle.DropDownList;
             cbSerialPort.FormattingEnabled = true;
-            cbSerialPort.Location = new Point(573, 47);
+            cbSerialPort.Location = new Point(670, 46);
             cbSerialPort.Margin = new Padding(4);
             cbSerialPort.Name = "cbSerialPort";
             cbSerialPort.Size = new Size(100, 28);
@@ -383,7 +384,7 @@ namespace 五通道自动测试
             // 
             // btnConnectBoard
             // 
-            btnConnectBoard.Location = new Point(756, 48);
+            btnConnectBoard.Location = new Point(853, 47);
             btnConnectBoard.Margin = new Padding(4);
             btnConnectBoard.Name = "btnConnectBoard";
             btnConnectBoard.Size = new Size(100, 29);
@@ -395,7 +396,7 @@ namespace 五通道自动测试
             // lblBoardStatus
             // 
             lblBoardStatus.AutoSize = true;
-            lblBoardStatus.Location = new Point(690, 52);
+            lblBoardStatus.Location = new Point(787, 51);
             lblBoardStatus.Margin = new Padding(4, 0, 4, 0);
             lblBoardStatus.Name = "lblBoardStatus";
             lblBoardStatus.Size = new Size(54, 20);
@@ -404,7 +405,7 @@ namespace 五通道自动测试
             // 
             // btnBatchTest
             // 
-            btnBatchTest.Location = new Point(1042, 196);
+            btnBatchTest.Location = new Point(975, 196);
             btnBatchTest.Margin = new Padding(4);
             btnBatchTest.Name = "btnBatchTest";
             btnBatchTest.Size = new Size(129, 59);
@@ -415,7 +416,7 @@ namespace 五通道自动测试
             // 
             // btnStopTest
             // 
-            btnStopTest.Location = new Point(1042, 275);
+            btnStopTest.Location = new Point(975, 275);
             btnStopTest.Margin = new Padding(4);
             btnStopTest.Name = "btnStopTest";
             btnStopTest.Size = new Size(129, 59);
@@ -439,7 +440,7 @@ namespace 五通道自动测试
             gbTestItems.Margin = new Padding(4);
             gbTestItems.Name = "gbTestItems";
             gbTestItems.Padding = new Padding(4);
-            gbTestItems.Size = new Size(800, 147);
+            gbTestItems.Size = new Size(733, 147);
             gbTestItems.TabIndex = 1;
             gbTestItems.TabStop = false;
             gbTestItems.Text = "测试项";
@@ -687,7 +688,7 @@ namespace 五通道自动测试
             dgvTestResults.Margin = new Padding(4);
             dgvTestResults.Name = "dgvTestResults";
             dgvTestResults.RowHeadersWidth = 51;
-            dgvTestResults.Size = new Size(1167, 302);
+            dgvTestResults.Size = new Size(1091, 302);
             dgvTestResults.TabIndex = 0;
             // 
             // txtTestLog
@@ -696,12 +697,12 @@ namespace 五通道自动测试
             txtTestLog.BorderStyle = BorderStyle.None;
             txtTestLog.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             txtTestLog.ForeColor = SystemColors.WindowText;
-            txtTestLog.Location = new Point(1186, 39);
+            txtTestLog.Location = new Point(1111, 39);
             txtTestLog.Margin = new Padding(0);
             txtTestLog.Name = "txtTestLog";
             txtTestLog.ReadOnly = true;
             txtTestLog.ScrollBars = RichTextBoxScrollBars.Vertical;
-            txtTestLog.Size = new Size(265, 745);
+            txtTestLog.Size = new Size(327, 745);
             txtTestLog.TabIndex = 0;
             txtTestLog.Text = "";
             // 
@@ -710,12 +711,12 @@ namespace 五通道自动测试
             textBox1.Location = new Point(15, 709);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(1054, 75);
+            textBox1.Size = new Size(975, 75);
             textBox1.TabIndex = 24;
             // 
             // Sendmessage
             // 
-            Sendmessage.Location = new Point(1072, 709);
+            Sendmessage.Location = new Point(996, 709);
             Sendmessage.Name = "Sendmessage";
             Sendmessage.Size = new Size(108, 75);
             Sendmessage.TabIndex = 25;
@@ -729,7 +730,7 @@ namespace 五通道自动测试
             menuStrip1.Items.AddRange(new ToolStripItem[] { 常温测试ToolStripMenuItem, 校准ToolStripMenuItem, 温箱控制ToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1459, 28);
+            menuStrip1.Size = new Size(1443, 28);
             menuStrip1.TabIndex = 26;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -758,7 +759,7 @@ namespace 五通道自动测试
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1459, 796);
+            ClientSize = new Size(1443, 796);
             Controls.Add(gbChannels);
             Controls.Add(gbTestItems);
             Controls.Add(btnBatchTest);
@@ -772,6 +773,7 @@ namespace 五通道自动测试
             Controls.Add(txtTestLog);
             Controls.Add(gbInstrumentStatus);
             Name = "Form1";
+            Text = "常温测试";
             gbInstrumentStatus.ResumeLayout(false);
             gbInstrumentStatus.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pbZNB8Status).EndInit();

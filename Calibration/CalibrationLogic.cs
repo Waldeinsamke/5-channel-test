@@ -191,5 +191,25 @@ namespace 五通道自动测试.Calibration
         {
             return _addressCalculator.GetAntennaAddress(index);
         }
+        
+        /// <summary>
+        /// 根据当前频率和温度索引计算36db模式地址
+        /// </summary>
+        /// <param name="frequencyIndex">频率索引</param>
+        /// <param name="temperatureIndex">温度索引</param>
+        public void CalculateDb36Addresses(int frequencyIndex, int temperatureIndex)
+        {
+            _addressCalculator.CalculateDb36Addresses(frequencyIndex, temperatureIndex);
+        }
+        
+        /// <summary>
+        /// 获取指定索引的36db模式校准地址
+        /// </summary>
+        /// <param name="index">地址索引</param>
+        /// <returns>十进制地址值</returns>
+        public int GetDb36AddressDecimal(int index)
+        {
+            return _addressCalculator.GetDb36AddressDecimal(index);
+        }
     }
 }

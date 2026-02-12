@@ -47,7 +47,14 @@ namespace 五通道自动测试.Calibration
         private readonly CalibrationLogic _calibrationLogic;
         private readonly CalibrationUIUpdater _calibrationUIUpdater;
         private readonly CalibrationAddressCalculator8 _addressCalculator8;
-        
+
+        // 长按连续变化相关
+        private readonly System.Windows.Forms.Timer _initialDelayTimer;
+        private readonly System.Windows.Forms.Timer _repeatTimer;
+        private TextBox? _targetTextBox;
+        private int _repeatDirection;
+        private bool _isLongPress;
+
         #endregion
 
         /// <summary>
@@ -69,6 +76,9 @@ namespace 五通道自动测试.Calibration
             // 调用Windows Forms设计器生成的代码，初始化UI控件
             InitializeComponent();
 
+            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+
             // 初始化校准逻辑
             _calibrationLogic = new CalibrationLogic();
 
@@ -87,6 +97,17 @@ namespace 五通道自动测试.Calibration
                 LogMessage,
                 _calibrationLogic,
                 _addressCalculator8);
+
+            // 初始化长按连续变化的 Timer
+            _initialDelayTimer = new System.Windows.Forms.Timer();
+            _initialDelayTimer.Interval = 300;
+            _initialDelayTimer.Tick += OnInitialDelayTimerTick;
+
+            _repeatTimer = new System.Windows.Forms.Timer();
+            _repeatTimer.Interval = 50;
+            _repeatTimer.Tick += OnRepeatTimerTick;
+
+            _isLongPress = false;
 
             // 初始化验证服务
             _verificationService = new VerificationService(
@@ -350,6 +371,38 @@ namespace 五通道自动测试.Calibration
             SwitchPower.FlatStyle = FlatStyle.Flat;
             SwitchPower.FlatAppearance.BorderSize = 0;
             SwitchPower.Click += SwitchPower_Click;
+
+            // 绑定DAC High上下箭头按钮的长按事件
+            btnUpDacHigh.MouseDown += (s, e) => StartLongPress(txtCalDacHigh, 1);
+            btnUpDacHigh.MouseUp += (s, e) => StopLongPress();
+            btnUpDacHigh.MouseLeave += (s, e) => StopLongPress();
+            btnDownDacHigh.MouseDown += (s, e) => StartLongPress(txtCalDacHigh, -1);
+            btnDownDacHigh.MouseUp += (s, e) => StopLongPress();
+            btnDownDacHigh.MouseLeave += (s, e) => StopLongPress();
+
+            // 绑定DAC Low上下箭头按钮的长按事件
+            btnUpDacLow.MouseDown += (s, e) => StartLongPress(txtCalDacLow, 1);
+            btnUpDacLow.MouseUp += (s, e) => StopLongPress();
+            btnUpDacLow.MouseLeave += (s, e) => StopLongPress();
+            btnDownDacLow.MouseDown += (s, e) => StartLongPress(txtCalDacLow, -1);
+            btnDownDacLow.MouseUp += (s, e) => StopLongPress();
+            btnDownDacLow.MouseLeave += (s, e) => StopLongPress();
+
+            // 绑定XND High上下箭头按钮的长按事件
+            btnUpXndHigh.MouseDown += (s, e) => StartLongPress(txtCalXndHigh, 1);
+            btnUpXndHigh.MouseUp += (s, e) => StopLongPress();
+            btnUpXndHigh.MouseLeave += (s, e) => StopLongPress();
+            btnDownXndHigh.MouseDown += (s, e) => StartLongPress(txtCalXndHigh, -1);
+            btnDownXndHigh.MouseUp += (s, e) => StopLongPress();
+            btnDownXndHigh.MouseLeave += (s, e) => StopLongPress();
+
+            // 绑定XND Low上下箭头按钮的长按事件
+            btnUpXndLow.MouseDown += (s, e) => StartLongPress(txtCalXndLow, 1);
+            btnUpXndLow.MouseUp += (s, e) => StopLongPress();
+            btnUpXndLow.MouseLeave += (s, e) => StopLongPress();
+            btnDownXndLow.MouseDown += (s, e) => StartLongPress(txtCalXndLow, -1);
+            btnDownXndLow.MouseUp += (s, e) => StopLongPress();
+            btnDownXndLow.MouseLeave += (s, e) => StopLongPress();
         }
 
         /// <summary>
@@ -576,9 +629,12 @@ namespace 五通道自动测试.Calibration
         /// </summary>
         private void FormCalibration_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // 取消订阅电源状态变化事件
+            _initialDelayTimer?.Stop();
+            _initialDelayTimer?.Dispose();
+            _repeatTimer?.Stop();
+            _repeatTimer?.Dispose();
+
             _instrumentManager.PowerStateChanged -= OnPowerStateChanged;
-            // 释放温度串口管理器资源
             _temperatureSerialPortManager?.Dispose();
         }
 
@@ -1023,6 +1079,12 @@ namespace 五通道自动测试.Calibration
                     _temperatureSerialPortManager.WriteEEPROM(address, value);
                     _temperatureSerialPortManager.ReadEEPROM(address);
                     LogMessage($"写入{parameterName}校准值成功: 0x{value:X2}");
+                    
+                    // 仅在normal模式下同时写入36db模式地址
+                    if (_currentMode == "normal")
+                    {
+                        WriteDb36Address(targetTextBox, parameterName, value);
+                    }
                 }
                 else
                 {
@@ -1032,6 +1094,76 @@ namespace 五通道自动测试.Calibration
             catch (Exception ex)
             {
                 LogMessage($"写入{parameterName}校准值失败: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// 写入36db模式地址
+        /// 在normal模式下，写入校准值时同时写入36db模式对应的地址
+        /// </summary>
+        /// <param name="targetTextBox">目标文本框控件</param>
+        /// <param name="parameterName">参数名称</param>
+        /// <param name="value">校准值</param>
+        private void WriteDb36Address(TextBox targetTextBox, string parameterName, byte value)
+        {
+            try
+            {
+                int addressIndex = 0;
+                
+                if (_channelMode == "CH5")
+                {
+                    int startIndex = _calibrationLogic.GetStartIndexByChannel(_currentChannel);
+                    
+                    if (targetTextBox == txtCalDacHigh)
+                        addressIndex = startIndex;
+                    else if (targetTextBox == txtCalDacLow)
+                        addressIndex = startIndex + 1;
+                    else if (targetTextBox == txtCalXndHigh)
+                        addressIndex = startIndex + 10;
+                    else if (targetTextBox == txtCalXndLow)
+                        addressIndex = startIndex + 11;
+                    
+                    _calibrationLogic.CalculateDb36Addresses(_frequencyIndex, _temperatureIndex);
+                    ushort db36Address = (ushort)_calibrationLogic.GetDb36AddressDecimal(addressIndex);
+                    
+                    if (db36Address > 0)
+                    {
+                        _temperatureSerialPortManager.WriteEEPROM(db36Address, value);
+                        _temperatureSerialPortManager.ReadEEPROM(db36Address);
+                        LogMessage($"写入36db[{parameterName}]校准值成功: 0x{value:X2} (地址: 0x{db36Address:X4})");
+                    }
+                }
+                else if (_channelMode == "CH8")
+                {
+                    int paramType = 0;
+                    if (targetTextBox == txtCalDacHigh)
+                        paramType = 1;
+                    else if (targetTextBox == txtCalDacLow)
+                        paramType = 2;
+                    else if (targetTextBox == txtCalXndHigh)
+                        paramType = 3;
+                    else if (targetTextBox == txtCalXndLow)
+                        paramType = 4;
+                    
+                    if (paramType > 0)
+                    {
+                        addressIndex = _addressCalculator8.GetNormalAddressIndex(_currentChannel, paramType);
+                        
+                        _addressCalculator8.CalculateDb36Addresses(_frequencyIndex, _temperatureIndex);
+                        ushort db36Address = (ushort)_addressCalculator8.GetDb36AddressDecimal(addressIndex);
+                        
+                        if (db36Address > 0)
+                        {
+                            _temperatureSerialPortManager.WriteEEPROM(db36Address, value);
+                            _temperatureSerialPortManager.ReadEEPROM(db36Address);
+                            LogMessage($"写入36db[{parameterName}]校准值成功: 0x{value:X2} (地址: 0x{db36Address:X4})");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"写入36db[{parameterName}]校准值失败: {ex.Message}");
             }
         }
 
@@ -1478,6 +1610,36 @@ namespace 五通道自动测试.Calibration
             catch (Exception ex)
             {
                 LogMessage($"创建Excel文件失败: {ex.Message}");
+            }
+        }
+
+        private void StartLongPress(TextBox targetTextBox, int direction)
+        {
+            _targetTextBox = targetTextBox;
+            _repeatDirection = direction;
+            _isLongPress = false;
+            _initialDelayTimer.Start();
+        }
+
+        private void StopLongPress()
+        {
+            _initialDelayTimer.Stop();
+            _repeatTimer.Stop();
+            _isLongPress = false;
+        }
+
+        private void OnInitialDelayTimerTick(object? sender, EventArgs e)
+        {
+            _initialDelayTimer.Stop();
+            _isLongPress = true;
+            _repeatTimer.Start();
+        }
+
+        private void OnRepeatTimerTick(object? sender, EventArgs e)
+        {
+            if (_targetTextBox != null)
+            {
+                _calibrationUIUpdater.AdjustNumericValue(_targetTextBox, _repeatDirection);
             }
         }
     }

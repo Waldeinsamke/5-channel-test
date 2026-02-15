@@ -717,19 +717,19 @@ namespace 五通道自动测试.Calibration
         /// <summary>
         /// 模式选择控件事件处理程序
         /// </summary>
-        private void Mode_CheckedChanged(object sender, EventArgs e)
+        private async void Mode_CheckedChanged(object sender, EventArgs e)
         {
             if (sender is RadioButton radioButton && radioButton.Checked)
             {
                 if (radioButton == normal)
                 {
                     _currentMode = "normal";
-                    _instrumentManager.SendNormalModeCommands();
+                    await _instrumentManager.SendNormalModeCommandsAsync();
                 }
                 else if (radioButton == antenna)
                 {
                     _currentMode = "antenna";
-                    _instrumentManager.SendAntennaModeCommands();
+                    await _instrumentManager.SendAntennaModeCommandsAsync();
                 }
                 
                 // 更新 CalibrationUIUpdater 的模式状态

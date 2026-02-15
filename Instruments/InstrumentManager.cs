@@ -549,6 +549,24 @@ namespace 五通道自动测试.Instruments
             Console.WriteLine($"[INFO] 发送结果: {(result ? "成功" : "失败")}");
             return result;
         }
+
+        /// <summary>
+        /// 发送Antenna模式完整命令序列（异步版本）
+        /// </summary>
+        /// <returns>是否发送成功</returns>
+        public async Task<bool> SendAntennaModeCommandsAsync()
+        {
+            if (ToolingBoard == null)
+            {
+                Console.WriteLine("[ERROR] 工装板未连接，无法发送Antenna模式命令");
+                return false;
+            }
+            
+            Console.WriteLine("[INFO] 发送Antenna模式完整命令序列");
+            bool result = await ToolingBoard.SendAntennaModeCommandsAsync();
+            Console.WriteLine($"[INFO] 发送结果: {(result ? "成功" : "失败")}");
+            return result;
+        }
         
         /// <summary>
         /// 发送Normal模式完整命令序列（FXJZ拉低、校准源下电、天线去能）
@@ -564,6 +582,24 @@ namespace 五通道自动测试.Instruments
             
             Console.WriteLine("[INFO] 发送Normal模式完整命令序列");
             bool result = ToolingBoard.SendNormalModeCommands();
+            Console.WriteLine($"[INFO] 发送结果: {(result ? "成功" : "失败")}");
+            return result;
+        }
+
+        /// <summary>
+        /// 发送Normal模式完整命令序列（异步版本）
+        /// </summary>
+        /// <returns>是否发送成功</returns>
+        public async Task<bool> SendNormalModeCommandsAsync()
+        {
+            if (ToolingBoard == null)
+            {
+                Console.WriteLine("[ERROR] 工装板未连接，无法发送Normal模式命令");
+                return false;
+            }
+            
+            Console.WriteLine("[INFO] 发送Normal模式完整命令序列");
+            bool result = await ToolingBoard.SendNormalModeCommandsAsync();
             Console.WriteLine($"[INFO] 发送结果: {(result ? "成功" : "失败")}");
             return result;
         }

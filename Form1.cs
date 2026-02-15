@@ -157,6 +157,7 @@ namespace 五通道自动测试
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[ERROR] 加载配置文件失败: {ex.Message}");
                 _instrumentConfig = new InstrumentConfig();
             }
         }

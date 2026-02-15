@@ -274,6 +274,18 @@ namespace 五通道自动测试
             return allSuccess;
         }
 
+        // 发送Antenna模式完整命令序列（异步版本）
+        public async Task<bool> SendAntennaModeCommandsAsync()
+        {
+            bool allSuccess = true;
+            allSuccess &= SetCalibrationSwitchHigh();
+            await Task.Delay(50);
+            allSuccess &= SetCalibrationSourcePowerOn();
+            await Task.Delay(50);
+            allSuccess &= SetAntennaEnable();
+            return allSuccess;
+        }
+
         // 发送Normal模式完整命令序列（FXJZ拉低、校准源下电、天线去能）
         public bool SendNormalModeCommands()
         {
@@ -282,6 +294,18 @@ namespace 五通道自动测试
             System.Threading.Thread.Sleep(50);
             allSuccess &= SetCalibrationSourcePowerOff();
             System.Threading.Thread.Sleep(50);
+            allSuccess &= SetAntennaDisable();
+            return allSuccess;
+        }
+
+        // 发送Normal模式完整命令序列（异步版本）
+        public async Task<bool> SendNormalModeCommandsAsync()
+        {
+            bool allSuccess = true;
+            allSuccess &= SetCalibrationSwitchLow();
+            await Task.Delay(50);
+            allSuccess &= SetCalibrationSourcePowerOff();
+            await Task.Delay(50);
             allSuccess &= SetAntennaDisable();
             return allSuccess;
         }
@@ -339,6 +363,12 @@ namespace 五通道自动测试
             catch (Exception ex)
             {
                 LogMessage?.Invoke($"接收数据错误: {ex.Message}");
+                
+                lock (_queueLock)
+                {
+                    _receiveQueue.Clear();
+                }
+                LogMessage?.Invoke("接收队列已清空，准备恢复接收");
             }
         }
 

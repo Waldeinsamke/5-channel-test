@@ -568,10 +568,10 @@ namespace 五通道自动测试
             cbChannel8.AutoSize = true;
             cbChannel8.Location = new Point(99, 103);
             cbChannel8.Name = "cbChannel8";
-            cbChannel8.Size = new Size(69, 24);
+            cbChannel8.Size = new Size(72, 24);
             cbChannel8.TabIndex = 7;
             cbChannel8.TabStop = true;
-            cbChannel8.Text = "通道8";
+            cbChannel8.Text = "通道H";
             cbChannel8.UseVisualStyleBackColor = true;
             cbChannel8.CheckedChanged += cbChannel8_CheckedChanged;
             // 
@@ -580,10 +580,10 @@ namespace 五通道自动测试
             cbChannel7.AutoSize = true;
             cbChannel7.Location = new Point(99, 80);
             cbChannel7.Name = "cbChannel7";
-            cbChannel7.Size = new Size(69, 24);
+            cbChannel7.Size = new Size(71, 24);
             cbChannel7.TabIndex = 6;
             cbChannel7.TabStop = true;
-            cbChannel7.Text = "通道7";
+            cbChannel7.Text = "通道G";
             cbChannel7.UseVisualStyleBackColor = true;
             cbChannel7.CheckedChanged += cbChannel7_CheckedChanged;
             // 
@@ -592,10 +592,10 @@ namespace 五通道自动测试
             cbChannel6.AutoSize = true;
             cbChannel6.Location = new Point(99, 56);
             cbChannel6.Name = "cbChannel6";
-            cbChannel6.Size = new Size(69, 24);
+            cbChannel6.Size = new Size(68, 24);
             cbChannel6.TabIndex = 5;
             cbChannel6.TabStop = true;
-            cbChannel6.Text = "通道6";
+            cbChannel6.Text = "通道F";
             cbChannel6.UseVisualStyleBackColor = true;
             cbChannel6.CheckedChanged += cbChannel6_CheckedChanged;
             // 
@@ -605,9 +605,9 @@ namespace 五通道自动测试
             cbChannel5.Location = new Point(99, 33);
             cbChannel5.Margin = new Padding(4);
             cbChannel5.Name = "cbChannel5";
-            cbChannel5.Size = new Size(69, 24);
+            cbChannel5.Size = new Size(68, 24);
             cbChannel5.TabIndex = 4;
-            cbChannel5.Text = "通道5";
+            cbChannel5.Text = "通道E";
             cbChannel5.UseVisualStyleBackColor = true;
             cbChannel5.CheckedChanged += cbChannel5_CheckedChanged;
             // 
@@ -617,9 +617,9 @@ namespace 五通道自动测试
             cbChannel4.Location = new Point(23, 103);
             cbChannel4.Margin = new Padding(4);
             cbChannel4.Name = "cbChannel4";
-            cbChannel4.Size = new Size(69, 24);
+            cbChannel4.Size = new Size(71, 24);
             cbChannel4.TabIndex = 3;
-            cbChannel4.Text = "通道4";
+            cbChannel4.Text = "通道D";
             cbChannel4.UseVisualStyleBackColor = true;
             cbChannel4.CheckedChanged += cbChannel4_CheckedChanged;
             // 
@@ -629,9 +629,9 @@ namespace 五通道自动测试
             cbChannel3.Location = new Point(23, 80);
             cbChannel3.Margin = new Padding(4);
             cbChannel3.Name = "cbChannel3";
-            cbChannel3.Size = new Size(69, 24);
+            cbChannel3.Size = new Size(70, 24);
             cbChannel3.TabIndex = 2;
-            cbChannel3.Text = "通道3";
+            cbChannel3.Text = "通道C";
             cbChannel3.UseVisualStyleBackColor = true;
             cbChannel3.CheckedChanged += cbChannel3_CheckedChanged;
             // 
@@ -643,7 +643,7 @@ namespace 五通道自动测试
             cbChannel2.Name = "cbChannel2";
             cbChannel2.Size = new Size(69, 24);
             cbChannel2.TabIndex = 1;
-            cbChannel2.Text = "通道2";
+            cbChannel2.Text = "通道B";
             cbChannel2.UseVisualStyleBackColor = true;
             cbChannel2.CheckedChanged += cbChannel2_CheckedChanged;
             // 
@@ -653,9 +653,9 @@ namespace 五通道自动测试
             cbChannel1.Location = new Point(23, 33);
             cbChannel1.Margin = new Padding(4);
             cbChannel1.Name = "cbChannel1";
-            cbChannel1.Size = new Size(69, 24);
+            cbChannel1.Size = new Size(71, 24);
             cbChannel1.TabIndex = 0;
-            cbChannel1.Text = "通道1";
+            cbChannel1.Text = "通道A";
             cbChannel1.UseVisualStyleBackColor = true;
             cbChannel1.CheckedChanged += cbChannel1_CheckedChanged;
             // 

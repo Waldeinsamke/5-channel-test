@@ -110,9 +110,9 @@ namespace 五通道自动测试.Calibration
             jzchannel8.Location = new Point(93, 133);
             jzchannel8.Margin = new Padding(4);
             jzchannel8.Name = "jzchannel8";
-            jzchannel8.Size = new Size(69, 24);
+            jzchannel8.Size = new Size(72, 24);
             jzchannel8.TabIndex = 7;
-            jzchannel8.Text = "通道8";
+            jzchannel8.Text = "通道H";
             jzchannel8.UseVisualStyleBackColor = true;
             // 
             // jzchannel7
@@ -121,9 +121,9 @@ namespace 五通道自动测试.Calibration
             jzchannel7.Location = new Point(93, 104);
             jzchannel7.Margin = new Padding(4);
             jzchannel7.Name = "jzchannel7";
-            jzchannel7.Size = new Size(69, 24);
+            jzchannel7.Size = new Size(71, 24);
             jzchannel7.TabIndex = 6;
-            jzchannel7.Text = "通道7";
+            jzchannel7.Text = "通道G";
             jzchannel7.UseVisualStyleBackColor = true;
             // 
             // jzchannel6
@@ -132,9 +132,9 @@ namespace 五通道自动测试.Calibration
             jzchannel6.Location = new Point(93, 75);
             jzchannel6.Margin = new Padding(4);
             jzchannel6.Name = "jzchannel6";
-            jzchannel6.Size = new Size(69, 24);
+            jzchannel6.Size = new Size(68, 24);
             jzchannel6.TabIndex = 5;
-            jzchannel6.Text = "通道6";
+            jzchannel6.Text = "通道F";
             jzchannel6.UseVisualStyleBackColor = true;
             // 
             // jzchannel5
@@ -143,9 +143,9 @@ namespace 五通道自动测试.Calibration
             jzchannel5.Location = new Point(93, 46);
             jzchannel5.Margin = new Padding(4);
             jzchannel5.Name = "jzchannel5";
-            jzchannel5.Size = new Size(69, 24);
+            jzchannel5.Size = new Size(68, 24);
             jzchannel5.TabIndex = 4;
-            jzchannel5.Text = "通道5";
+            jzchannel5.Text = "通道E";
             jzchannel5.UseVisualStyleBackColor = true;
             // 
             // jzchannel4
@@ -154,9 +154,9 @@ namespace 五通道自动测试.Calibration
             jzchannel4.Location = new Point(20, 133);
             jzchannel4.Margin = new Padding(4);
             jzchannel4.Name = "jzchannel4";
-            jzchannel4.Size = new Size(69, 24);
+            jzchannel4.Size = new Size(71, 24);
             jzchannel4.TabIndex = 3;
-            jzchannel4.Text = "通道4";
+            jzchannel4.Text = "通道D";
             jzchannel4.UseVisualStyleBackColor = true;
             // 
             // jzchannel3
@@ -165,9 +165,9 @@ namespace 五通道自动测试.Calibration
             jzchannel3.Location = new Point(20, 104);
             jzchannel3.Margin = new Padding(4);
             jzchannel3.Name = "jzchannel3";
-            jzchannel3.Size = new Size(69, 24);
+            jzchannel3.Size = new Size(70, 24);
             jzchannel3.TabIndex = 2;
-            jzchannel3.Text = "通道3";
+            jzchannel3.Text = "通道C";
             jzchannel3.UseVisualStyleBackColor = true;
             // 
             // jzchannel2
@@ -178,7 +178,7 @@ namespace 五通道自动测试.Calibration
             jzchannel2.Name = "jzchannel2";
             jzchannel2.Size = new Size(69, 24);
             jzchannel2.TabIndex = 1;
-            jzchannel2.Text = "通道2";
+            jzchannel2.Text = "通道B";
             jzchannel2.UseVisualStyleBackColor = true;
             // 
             // jzchannel1
@@ -188,10 +188,10 @@ namespace 五通道自动测试.Calibration
             jzchannel1.Location = new Point(20, 46);
             jzchannel1.Margin = new Padding(4);
             jzchannel1.Name = "jzchannel1";
-            jzchannel1.Size = new Size(69, 24);
+            jzchannel1.Size = new Size(71, 24);
             jzchannel1.TabIndex = 0;
             jzchannel1.TabStop = true;
-            jzchannel1.Text = "通道1";
+            jzchannel1.Text = "通道A";
             jzchannel1.UseVisualStyleBackColor = true;
             // 
             // gbParameters

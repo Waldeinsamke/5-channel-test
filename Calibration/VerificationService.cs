@@ -20,6 +20,15 @@ namespace 五通道自动测试.Calibration
         private readonly string _channelMode;
         private CancellationTokenSource _cancellationTokenSource;
         private readonly int _overallTimeoutSeconds = 300;
+
+        private static string GetChannelName(int channelNumber)
+        {
+            if (channelNumber >= 1 && channelNumber <= 8)
+            {
+                return ((char)('A' + channelNumber - 1)).ToString();
+            }
+            return channelNumber.ToString();
+        }
         
         /// <summary>
         /// 构造函数
@@ -91,12 +100,12 @@ namespace 五通道自动测试.Calibration
             if (_channelMode == "CH5")
             {
                 channels = new int[] { 1, 2, 4, 5 };
-                _logCallback("使用五通道测试模式：测试通道 1, 2, 4, 5");
+                _logCallback($"使用五通道测试模式：测试通道 {GetChannelName(1)}, {GetChannelName(2)}, {GetChannelName(4)}, {GetChannelName(5)}");
             }
             else
             {
                 channels = new int[] { 1, 2, 3, 5, 6, 7, 8 };
-                _logCallback("使用八通道测试模式：测试通道 1, 2, 3, 5, 6, 7, 8");
+                _logCallback($"使用八通道测试模式：测试通道 {GetChannelName(1)}, {GetChannelName(2)}, {GetChannelName(3)}, {GetChannelName(5)}, {GetChannelName(6)}, {GetChannelName(7)}, {GetChannelName(8)}");
             }
 
             double[] frequencies = { 3330.0, 3350.0, 3370.0, 3390.0 };
@@ -115,10 +124,10 @@ namespace 五通道自动测试.Calibration
         /// </summary>
         private void TestChannel(int channel, double[] frequencies, CancellationToken cancellationToken)
         {
-            _logCallback($"===== 开始测试通道 {channel} =====");
+            _logCallback($"===== 开始测试通道 {GetChannelName(channel)} =====");
 
             _instrumentManager.SwitchChannel(channel);
-            _logCallback($"切换到通道 {channel}");
+            _logCallback($"切换到通道 {GetChannelName(channel)}");
             Thread.Sleep(800);
 
             foreach (double frequency in frequencies)
@@ -152,24 +161,24 @@ namespace 五通道自动测试.Calibration
                 if (double.TryParse(yValueResponse, out yValue))
                 {
                     string formattedValue = yValue.ToString("F1");
-                    SafeAddResult($"通道{channel} {frequency}MHz", formattedValue);
-                    _logCallback($"解析结果: 通道{channel} {frequency}MHz -> {formattedValue}");
+                    SafeAddResult($"通道{GetChannelName(channel)} {frequency}MHz", formattedValue);
+                    _logCallback($"解析结果: 通道{GetChannelName(channel)} {frequency}MHz -> {formattedValue}");
                 }
                 else
                 {
                     _logCallback($"注意：返回值为非数值格式，直接显示原始数据: {yValueResponse}");
-                    SafeAddResult($"通道{channel} {frequency}MHz", yValueResponse);
+                    SafeAddResult($"通道{GetChannelName(channel)} {frequency}MHz", yValueResponse);
                 }
             }
             catch (TimeoutException ex)
             {
                 _logCallback($"[超时] 读取数据超时: {ex.Message}");
-                SafeAddResult($"通道{channel} {frequency}MHz", "超时");
+                SafeAddResult($"通道{GetChannelName(channel)} {frequency}MHz", "超时");
             }
             catch (Exception ex)
             {
                 _logCallback($"读取数据失败: {ex.Message}");
-                SafeAddResult($"通道{channel} {frequency}MHz", "失败");
+                SafeAddResult($"通道{GetChannelName(channel)} {frequency}MHz", "失败");
             }
         }
 

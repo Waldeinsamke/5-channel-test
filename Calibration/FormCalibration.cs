@@ -1244,7 +1244,7 @@ namespace 五通道自动测试.Calibration
         /// </summary>
         private void btnUpDacLow_Click(object sender, EventArgs e)
         {
-            _calibrationUIUpdater.AdjustNumericValue(txtCalDacLow, 1);
+            _calibrationUIUpdater.AdjustNumericValue(txtCalDacLow, 16);
         }
 
         /// <summary>
@@ -1252,7 +1252,7 @@ namespace 五通道自动测试.Calibration
         /// </summary>
         private void btnDownDacLow_Click(object sender, EventArgs e)
         {
-            _calibrationUIUpdater.AdjustNumericValue(txtCalDacLow, -1);
+            _calibrationUIUpdater.AdjustNumericValue(txtCalDacLow, -16);
         }
 
         /// <summary>

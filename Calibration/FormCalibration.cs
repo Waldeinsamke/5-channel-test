@@ -381,10 +381,10 @@ namespace 五通道自动测试.Calibration
             btnDownDacHigh.MouseLeave += (s, e) => StopLongPress();
 
             // 绑定DAC Low上下箭头按钮的长按事件
-            btnUpDacLow.MouseDown += (s, e) => StartLongPress(txtCalDacLow, 1);
+            btnUpDacLow.MouseDown += (s, e) => StartLongPress(txtCalDacLow, 16);
             btnUpDacLow.MouseUp += (s, e) => StopLongPress();
             btnUpDacLow.MouseLeave += (s, e) => StopLongPress();
-            btnDownDacLow.MouseDown += (s, e) => StartLongPress(txtCalDacLow, -1);
+            btnDownDacLow.MouseDown += (s, e) => StartLongPress(txtCalDacLow, -16);
             btnDownDacLow.MouseUp += (s, e) => StopLongPress();
             btnDownDacLow.MouseLeave += (s, e) => StopLongPress();
 

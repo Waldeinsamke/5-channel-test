@@ -301,6 +301,41 @@ namespace 五通道自动测试.Calibration
         }
 
         /// <summary>
+        /// 获取天线模式下的通道锁定代码
+        /// </summary>
+        /// <param name="channel">UI通道号(1-8)</param>
+        /// <param name="channelMode">通道模式(CH5或CH8)</param>
+        /// <returns>锁定代码(1-7)，0表示无需锁定</returns>
+        private int GetChannelLockCode(int channel, string channelMode)
+        {
+            if (channelMode == "CH5")
+            {
+                switch (channel)
+                {
+                    case 1: return 1;  // A
+                    case 2: return 2;  // B
+                    case 4: return 3;  // D
+                    case 5: return 4;  // E
+                    default: return 0; // 无效通道
+                }
+            }
+            else // CH8
+            {
+                switch (channel)
+                {
+                    case 1: return 1;  // A
+                    case 2: return 2;  // B
+                    case 3: return 3;  // C
+                    case 5: return 4;  // E
+                    case 6: return 5;  // F
+                    case 7: return 6;  // G
+                    case 8: return 7;  // H
+                    default: return 0; // 无效通道
+                }
+            }
+        }
+
+        /// <summary>
         /// 初始化校准UI控件
         /// </summary>
         private void InitializeCalibrationUI()
@@ -995,6 +1030,17 @@ namespace 五通道自动测试.Calibration
                     
                     // 执行通道切换
                     _instrumentManager.SwitchChannel(channel);
+
+                    // 天线模式下发送通道锁定命令
+                    if (_currentMode == "antenna")
+                    {
+                        int lockCode = GetChannelLockCode(channel, _channelMode);
+                        if (lockCode > 0)
+                        {
+                            _instrumentManager.SetChannelLock(lockCode);
+                            LogMessage($"天线模式：发送通道锁定命令，锁定代码 {lockCode}");
+                        }
+                    }
                     
                     // 更新校准控件显示
                     UpdateCalibrationControls();

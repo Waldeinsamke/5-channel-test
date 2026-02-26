@@ -531,6 +531,26 @@ namespace 五通道自动测试.Instruments
             Console.WriteLine($"[INFO] 发送结果: {(result ? "成功" : "失败")}");
             return result;
         }
+
+        /// <summary>
+        /// 发送通道锁定命令
+        /// </summary>
+        /// <param name="channelCode">通道代码: 1=A, 2=B, 3=C/D, 4=E, 5=F, 6=G, 7=H</param>
+        /// <returns>是否发送成功</returns>
+        public bool SetChannelLock(int channelCode)
+        {
+            if (ToolingBoard == null)
+            {
+                Console.WriteLine("[ERROR] 工装板未连接，无法发送通道锁定命令");
+                return false;
+            }
+
+            byte code = (byte)channelCode;
+            Console.WriteLine($"[INFO] 发送通道锁定命令: 通道代码 {channelCode} -> 0x{code:X2}");
+            bool result = ToolingBoard.SetChannelLock(code);
+            Console.WriteLine($"[INFO] 发送结果: {(result ? "成功" : "失败")}");
+            return result;
+        }
         
         /// <summary>
         /// 发送Antenna模式完整命令序列（FXJZ拉高、校准源上电、天线矢能）

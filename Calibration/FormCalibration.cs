@@ -443,6 +443,65 @@ namespace 五通道自动测试.Calibration
             btnDownXndLow.MouseDown += (s, e) => StartLongPress(txtCalXndLow, -1);
             btnDownXndLow.MouseUp += (s, e) => StopLongPress();
             btnDownXndLow.MouseLeave += (s, e) => StopLongPress();
+
+            // 绑定窗体滚轮事件，用于切换频率
+            this.MouseWheel += FormCalibration_MouseWheel;
+        }
+
+        /// <summary>
+        /// 滚轮事件处理方法 - 通过鼠标滚轮切换频点
+        /// 滚轮向下滚动切换到下一个频点，滚轮向上滚动切换到上一个频点
+        /// 仅当鼠标在窗体上时有效
+        /// </summary>
+        private void FormCalibration_MouseWheel(object sender, MouseEventArgs e)
+        {
+            // 检查鼠标是否在窗体区域内
+            if (!this.Bounds.Contains(Cursor.Position))
+            {
+                return;
+            }
+
+            // 计算新的频率索引
+            int newFrequencyIndex;
+            if (e.Delta < 0)
+            {
+                newFrequencyIndex = _frequencyIndex >= 4 ? 1 : _frequencyIndex + 1;
+            }
+            else
+            {
+                newFrequencyIndex = _frequencyIndex <= 1 ? 4 : _frequencyIndex - 1;
+            }
+
+            // 如果频率没有变化则不处理
+            if (newFrequencyIndex == _frequencyIndex)
+            {
+                return;
+            }
+
+            // 更新频率索引
+            _frequencyIndex = newFrequencyIndex;
+
+            // 获取对应的频率值
+            double frequencyMHz = _calibrationLogic.GetFrequencyValue(_frequencyIndex);
+
+            // 更新按钮选中状态
+            button3330.Checked = (_frequencyIndex == 1);
+            button3350.Checked = (_frequencyIndex == 2);
+            button3370.Checked = (_frequencyIndex == 3);
+            button3390.Checked = (_frequencyIndex == 4);
+
+            try
+            {
+                _instrumentManager.SendFrequencyCommand(frequencyMHz);
+                _instrumentManager.SignalGenerator.SetFrequency(frequencyMHz);
+                CalculateAddresses();
+                UpdateCalibrationControls();
+                LogMessage($"滚轮切换频率：{frequencyMHz} MHz");
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"滚轮切换频率失败：{ex.Message}");
+            }
         }
 
         /// <summary>

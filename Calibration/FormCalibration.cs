@@ -920,7 +920,28 @@ namespace 五通道自动测试.Calibration
 
                         _frequencyIndex = freqIndex;
                         _calibrationUIUpdater.SetCurrentChannel(originalChannel);
-                        CalculateNormalAddresses();
+                        if (_channelMode == "CH5")
+                        {
+                            if (_currentMode == "normal")
+                            {
+                                _calibrationLogic.CalculateNormalAddresses(_frequencyIndex, _temperatureIndex);
+                            }
+                            else if (_currentMode == "antenna")
+                            {
+                                _calibrationLogic.CalculateAntennaAddresses(_frequencyIndex, _temperatureIndex);
+                            }
+                        }
+                        else if (_channelMode == "CH8")
+                        {
+                            if (_currentMode == "normal")
+                            {
+                                _addressCalculator8.CalculateNormalAddresses(_frequencyIndex, _temperatureIndex);
+                            }
+                            else if (_currentMode == "antenna")
+                            {
+                                _addressCalculator8.CalculateAntennaAddresses(_frequencyIndex, _temperatureIndex);
+                            }
+                        }
 
                         ushort addrDacHigh = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalDacHigh);
                         _temperatureSerialPortManager.ReadEEPROM(addrDacHigh);

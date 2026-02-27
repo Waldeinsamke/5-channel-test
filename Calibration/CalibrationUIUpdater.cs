@@ -26,6 +26,13 @@ namespace 五通道自动测试.Calibration
         private ComboBox _comboBoxtemp;
         private Label _labeltemp;
 
+        // DACLow相关控件（用于天线模式禁用）
+        private Button _btnUpDacLow;
+        private Button _btnDownDacLow;
+        private Label _lblDacLow;
+        private Button _read2;
+        private Button _write2;
+
         // 地址缓存，用于检测地址变化
         private readonly Dictionary<Control, string> _addressCache;
         
@@ -126,6 +133,11 @@ namespace 五通道自动测试.Calibration
         /// <param name="lblAddrXndLow">XND低位地址标签</param>
         /// <param name="comboBoxtemp">温度范围下拉框</param>
         /// <param name="labeltemp">温度显示标签</param>
+        /// <param name="btnUpDacLow">DACLow向上按钮</param>
+        /// <param name="btnDownDacLow">DACLow向下按钮</param>
+        /// <param name="lblDacLow">DACLow标签</param>
+        /// <param name="read2">读取按钮2</param>
+        /// <param name="write2">写入按钮2</param>
         public void InitializeControls(
             TextBox txtCalDacHigh,
             TextBox txtCalDacLow,
@@ -136,7 +148,12 @@ namespace 五通道自动测试.Calibration
             Label lblAddrXndHigh,
             Label lblAddrXndLow,
             ComboBox comboBoxtemp,
-            Label labeltemp)
+            Label labeltemp,
+            Button btnUpDacLow,
+            Button btnDownDacLow,
+            Label lblDacLow,
+            Button read2,
+            Button write2)
         {
             _txtCalDacHigh = txtCalDacHigh;
             _txtCalDacLow = txtCalDacLow;
@@ -148,6 +165,12 @@ namespace 五通道自动测试.Calibration
             _lblAddrXndLow = lblAddrXndLow;
             _comboBoxtemp = comboBoxtemp;
             _labeltemp = labeltemp;
+
+            _btnUpDacLow = btnUpDacLow;
+            _btnDownDacLow = btnDownDacLow;
+            _lblDacLow = lblDacLow;
+            _read2 = read2;
+            _write2 = write2;
 
             // 初始化温度范围下拉框
             InitializeComboBoxTemp();
@@ -389,6 +412,26 @@ namespace 五通道自动测试.Calibration
             if (_lblAddrDacLow != null)
             {
                 _lblAddrDacLow.Enabled = !isAntennaMode;
+            }
+            if (_lblDacLow != null)
+            {
+                _lblDacLow.Enabled = !isAntennaMode;
+            }
+            if (_btnUpDacLow != null)
+            {
+                _btnUpDacLow.Enabled = !isAntennaMode;
+            }
+            if (_btnDownDacLow != null)
+            {
+                _btnDownDacLow.Enabled = !isAntennaMode;
+            }
+            if (_read2 != null)
+            {
+                _read2.Enabled = !isAntennaMode;
+            }
+            if (_write2 != null)
+            {
+                _write2.Enabled = !isAntennaMode;
             }
         }
 

@@ -351,7 +351,12 @@ namespace 五通道自动测试.Calibration
                 lblAddrXndHigh,
                 lblAddrXndLow,
                 comboBoxtemp,
-                labeltemp);
+                labeltemp,
+                btnUpDacLow,
+                btnDownDacLow,
+                lblDacLow,
+                read2,
+                write2);
 
             // 绑定温度范围下拉框选择事件
             comboBoxtemp.SelectedIndexChanged += comboBoxtemp_SelectedIndexChanged;

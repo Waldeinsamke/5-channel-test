@@ -235,7 +235,7 @@ namespace 五通道自动测试.Calibration
             // 
             // write4
             // 
-            write4.Location = new Point(439, 253);
+            write4.Location = new Point(437, 259);
             write4.Name = "write4";
             write4.Size = new Size(30, 30);
             write4.TabIndex = 25;
@@ -244,7 +244,7 @@ namespace 五通道自动测试.Calibration
             // 
             // read4
             // 
-            read4.Location = new Point(473, 253);
+            read4.Location = new Point(473, 259);
             read4.Name = "read4";
             read4.Size = new Size(30, 30);
             read4.TabIndex = 24;
@@ -254,7 +254,7 @@ namespace 五通道自动测试.Calibration
             // 
             // write3
             // 
-            write3.Location = new Point(439, 182);
+            write3.Location = new Point(437, 188);
             write3.Name = "write3";
             write3.Size = new Size(30, 30);
             write3.TabIndex = 23;
@@ -263,7 +263,7 @@ namespace 五通道自动测试.Calibration
             // 
             // read3
             // 
-            read3.Location = new Point(473, 182);
+            read3.Location = new Point(473, 188);
             read3.Name = "read3";
             read3.Size = new Size(30, 30);
             read3.TabIndex = 22;
@@ -273,7 +273,7 @@ namespace 五通道自动测试.Calibration
             // 
             // write2
             // 
-            write2.Location = new Point(439, 113);
+            write2.Location = new Point(437, 119);
             write2.Name = "write2";
             write2.Size = new Size(30, 30);
             write2.TabIndex = 21;
@@ -282,7 +282,7 @@ namespace 五通道自动测试.Calibration
             // 
             // read2
             // 
-            read2.Location = new Point(473, 113);
+            read2.Location = new Point(473, 118);
             read2.Name = "read2";
             read2.Size = new Size(30, 30);
             read2.TabIndex = 20;
@@ -303,7 +303,7 @@ namespace 五通道自动测试.Calibration
             // btnDownXndLow
             // 
             btnDownXndLow.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnDownXndLow.Location = new Point(409, 269);
+            btnDownXndLow.Location = new Point(409, 276);
             btnDownXndLow.Name = "btnDownXndLow";
             btnDownXndLow.Size = new Size(24, 24);
             btnDownXndLow.TabIndex = 19;
@@ -324,7 +324,7 @@ namespace 五通道自动测试.Calibration
             // btnUpXndLow
             // 
             btnUpXndLow.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnUpXndLow.Location = new Point(409, 245);
+            btnUpXndLow.Location = new Point(409, 252);
             btnUpXndLow.Name = "btnUpXndLow";
             btnUpXndLow.Size = new Size(24, 24);
             btnUpXndLow.TabIndex = 18;
@@ -355,7 +355,7 @@ namespace 五通道自动测试.Calibration
             // btnUpXndHigh
             // 
             btnUpXndHigh.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnUpXndHigh.Location = new Point(410, 173);
+            btnUpXndHigh.Location = new Point(409, 181);
             btnUpXndHigh.Name = "btnUpXndHigh";
             btnUpXndHigh.Size = new Size(24, 24);
             btnUpXndHigh.TabIndex = 16;
@@ -404,7 +404,7 @@ namespace 五通道自动测试.Calibration
             // btnDownDacLow
             // 
             btnDownDacLow.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnDownDacLow.Location = new Point(409, 130);
+            btnDownDacLow.Location = new Point(409, 136);
             btnDownDacLow.Name = "btnDownDacLow";
             btnDownDacLow.Size = new Size(24, 24);
             btnDownDacLow.TabIndex = 15;
@@ -425,7 +425,7 @@ namespace 五通道自动测试.Calibration
             // btnDownXndHigh
             // 
             btnDownXndHigh.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnDownXndHigh.Location = new Point(410, 197);
+            btnDownXndHigh.Location = new Point(409, 205);
             btnDownXndHigh.Name = "btnDownXndHigh";
             btnDownXndHigh.Size = new Size(24, 24);
             btnDownXndHigh.TabIndex = 17;
@@ -436,7 +436,7 @@ namespace 五通道自动测试.Calibration
             // btnUpDacLow
             // 
             btnUpDacLow.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnUpDacLow.Location = new Point(409, 106);
+            btnUpDacLow.Location = new Point(409, 112);
             btnUpDacLow.Name = "btnUpDacLow";
             btnUpDacLow.Size = new Size(24, 24);
             btnUpDacLow.TabIndex = 14;
@@ -447,7 +447,7 @@ namespace 五通道自动测试.Calibration
             // btnUpDacHigh
             // 
             btnUpDacHigh.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnUpDacHigh.Location = new Point(409, 39);
+            btnUpDacHigh.Location = new Point(409, 44);
             btnUpDacHigh.Name = "btnUpDacHigh";
             btnUpDacHigh.Size = new Size(24, 24);
             btnUpDacHigh.TabIndex = 12;
@@ -473,7 +473,7 @@ namespace 五通道自动测试.Calibration
             // 
             // write1
             // 
-            write1.Location = new Point(439, 45);
+            write1.Location = new Point(437, 51);
             write1.Name = "write1";
             write1.Size = new Size(30, 30);
             write1.TabIndex = 2;
@@ -491,7 +491,7 @@ namespace 五通道自动测试.Calibration
             // btnDownDacHigh
             // 
             btnDownDacHigh.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnDownDacHigh.Location = new Point(409, 63);
+            btnDownDacHigh.Location = new Point(409, 68);
             btnDownDacHigh.Name = "btnDownDacHigh";
             btnDownDacHigh.Size = new Size(24, 24);
             btnDownDacHigh.TabIndex = 13;
@@ -501,7 +501,7 @@ namespace 五通道自动测试.Calibration
             // 
             // read1
             // 
-            read1.Location = new Point(473, 45);
+            read1.Location = new Point(473, 50);
             read1.Name = "read1";
             read1.Size = new Size(30, 30);
             read1.TabIndex = 1;

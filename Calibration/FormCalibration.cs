@@ -9,6 +9,8 @@ using System.Windows.Forms;
 using 五通道自动测试.Instruments;
 using 五通道自动测试.Services;
 using 五通道自动测试.Test;
+using TemperatureChamber;
+using TemperatureChamber.Models;
 
 namespace 五通道自动测试.Calibration
 {
@@ -53,6 +55,12 @@ namespace 五通道自动测试.Calibration
         private readonly System.Windows.Forms.Timer _repeatTimer;
         private TextBox? _targetTextBox;
         private int _repeatDirection;
+
+        // 温箱控制相关
+        private ChamberController? _chamberController;
+        private ChamberConfig? _chamberConfig;
+        private TemperaturePhaseVerificationService? _tempPhaseService;
+        private bool _isTempPhaseRunning = false;
 
         #endregion
 
@@ -165,6 +173,219 @@ namespace 五通道自动测试.Calibration
                 string errorMsg = $"初始化失败：{ex.Message}";
                 LogMessage(errorMsg);
                 MessageBox.Show(errorMsg, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            InitializeChamberController();
+            InitializeTempPhaseControls();
+        }
+
+        private void InitializeChamberController()
+        {
+            _chamberConfig = new ChamberConfig
+            {
+                PortName = "COM4",
+                BaudRate = 38400,
+                DataBits = 8,
+                Parity = System.IO.Ports.Parity.Even,
+                StopBits = System.IO.Ports.StopBits.One,
+                SlaveId = 1,
+                Timeout = 10000,
+                MinTemperature = -58,
+                MaxTemperature = 150
+            };
+
+            _chamberController = new ChamberController(_chamberConfig);
+
+            _tempPhaseService = new TemperaturePhaseVerificationService(
+                _instrumentManager,
+                _chamberController,
+                LogMessage,
+                UpdateTempPhaseProgress,
+                OnTempPhasePowerStateChanged);
+        }
+
+        private void InitializeTempPhaseControls()
+        {
+            if (cmbSequencePreset != null)
+            {
+                cmbSequencePreset.SelectedIndexChanged += CmbSequencePreset_SelectedIndexChanged;
+            }
+
+            if (btnStartTempPhase != null)
+            {
+                btnStartTempPhase.Click += BtnStartTempPhase_Click;
+            }
+
+            if (btnStopTempPhase != null)
+            {
+                btnStopTempPhase.Click += BtnStopTempPhase_Click;
+            }
+        }
+
+        private void CmbSequencePreset_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (cmbSequencePreset != null && txtCustomSequence != null)
+            {
+                txtCustomSequence.Visible = cmbSequencePreset.SelectedIndex == 2;
+            }
+        }
+
+        private async void BtnStartTempPhase_Click(object? sender, EventArgs e)
+        {
+            if (_chamberController == null)
+            {
+                MessageBox.Show("温箱控制器未初始化", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                bool connected = _chamberController.IsConnected;
+                if (!connected)
+                {
+                    LogMessage("正在连接温箱设备...");
+                    connected = _chamberController.Connect();
+                    if (!connected)
+                    {
+                        MessageBox.Show("温箱连接失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    LogMessage("温箱连接成功");
+                }
+
+                double[] sequence = GetSelectedSequence();
+                if (sequence == null || sequence.Length == 0)
+                {
+                    MessageBox.Show("请选择或输入温度序列", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                _isTempPhaseRunning = true;
+                btnStartTempPhase.Enabled = false;
+                btnStopTempPhase.Enabled = true;
+                cmbSequencePreset.Enabled = false;
+
+                _isUlw2Mode = true;
+                ultraWork2.BackColor = Color.FromArgb(255, 240, 240);
+                LogMessage("已自动进入ulw2模式");
+
+                _verificationResults.Clear();
+                if (dgvCalibrationResults != null)
+                {
+                    dgvCalibrationResults.Rows.Clear();
+                }
+
+                await _tempPhaseService!.RunVerificationAsync(sequence);
+
+                LogMessage("温度相位一致性验证完成");
+
+                if (_isUlw2Mode && _verificationResults.Count > 0)
+                {
+                    LogMessage("ulw2模式：开始自动导出验证结果...");
+                    ExportVerificationResults();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"验证过程发生错误: {ex.Message}");
+                MessageBox.Show($"验证过程发生错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                _isTempPhaseRunning = false;
+                btnStartTempPhase.Enabled = true;
+                btnStopTempPhase.Enabled = false;
+                cmbSequencePreset.Enabled = true;
+            }
+        }
+
+        private void BtnStopTempPhase_Click(object? sender, EventArgs e)
+        {
+            _tempPhaseService?.Stop();
+            LogMessage("正在停止验证...");
+        }
+
+        private double[]? GetSelectedSequence()
+        {
+            if (cmbSequencePreset == null || txtCustomSequence == null)
+                return null;
+
+            switch (cmbSequencePreset.SelectedIndex)
+            {
+                case 0:
+                    return TemperaturePhaseVerificationService.GetSequence1();
+                case 1:
+                    return TemperaturePhaseVerificationService.GetSequence2();
+                case 2:
+                    string input = txtCustomSequence.Text.Trim();
+                    if (string.IsNullOrEmpty(input))
+                    {
+                        MessageBox.Show("请输入自定义温度序列", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return null;
+                    }
+
+                    try
+                    {
+                        var temps = input.Split(',')
+                            .Select(s => double.Parse(s.Trim()))
+                            .ToArray();
+                        return temps;
+                    }
+                    catch
+                    {
+                        MessageBox.Show("输入格式不正确，请使用逗号分隔的温度值，如：35,-25,-52", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return null;
+                    }
+                default:
+                    return null;
+            }
+        }
+
+        private void UpdateTempPhaseProgress(int current, int total, double moduleTemp, double chamberTemp)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => UpdateTempPhaseProgress(current, total, moduleTemp, chamberTemp)));
+                return;
+            }
+
+            if (lblProgress != null)
+            {
+                lblProgress.Text = $"进度: {current}/{total}";
+            }
+
+            if (lblChamberTemp != null)
+            {
+                lblChamberTemp.Text = $"温箱设定: {chamberTemp:F1}℃ | 模块目标: {moduleTemp:F1}℃";
+            }
+        }
+
+        private void OnTempPhasePowerStateChanged(bool isOn)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => OnTempPhasePowerStateChanged(isOn)));
+                return;
+            }
+
+            if (lblPowerStatus != null)
+            {
+                lblPowerStatus.Text = $"产品供电状态: {(isOn ? "开启" : "关闭")}";
+                lblPowerStatus.ForeColor = isOn ? Color.Green : Color.Red;
+            }
+
+            if (SwitchPower != null)
+            {
+                if (isOn)
+                {
+                    SwitchPower.BackColor = Color.LightCoral;
+                    SwitchPower.Text = "关闭供电";
+                }
+                else
+                {
+                    SwitchPower.BackColor = Color.LightGreen;
+                    SwitchPower.Text = "开启供电";
+                }
             }
         }
 

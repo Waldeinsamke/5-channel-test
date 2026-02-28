@@ -79,11 +79,20 @@ namespace 五通道自动测试.Calibration
             antenna = new RadioButton();
             modechance = new ComboBox();
             SwitchPower = new Button();
+            gbTempPhase = new GroupBox();
+            lblPowerStatus = new Label();
+            btnStopTempPhase = new Button();
+            btnStartTempPhase = new Button();
+            lblProgress = new Label();
+            lblChamberTemp = new Label();
+            txtCustomSequence = new TextBox();
+            cmbSequencePreset = new ComboBox();
             gbChannels.SuspendLayout();
             gbParameters.SuspendLayout();
             menuStrip1.SuspendLayout();
             FreqItems.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvCalibrationResults).BeginInit();
+            gbTempPhase.SuspendLayout();
             SuspendLayout();
             // 
             // gbChannels
@@ -749,12 +758,93 @@ namespace 五通道自动测试.Calibration
             SwitchPower.Text = "开启供电";
             SwitchPower.UseVisualStyleBackColor = true;
             // 
+            // gbTempPhase
+            // 
+            gbTempPhase.Controls.Add(lblPowerStatus);
+            gbTempPhase.Controls.Add(btnStopTempPhase);
+            gbTempPhase.Controls.Add(btnStartTempPhase);
+            gbTempPhase.Controls.Add(lblProgress);
+            gbTempPhase.Controls.Add(lblChamberTemp);
+            gbTempPhase.Controls.Add(txtCustomSequence);
+            gbTempPhase.Controls.Add(cmbSequencePreset);
+            gbTempPhase.Location = new Point(5, 646);
+            gbTempPhase.Name = "gbTempPhase";
+            gbTempPhase.Size = new Size(1147, 113);
+            gbTempPhase.TabIndex = 21;
+            gbTempPhase.TabStop = false;
+            gbTempPhase.Text = "温度相位一致性验证";
+            // 
+            // lblPowerStatus
+            // 
+            lblPowerStatus.AutoSize = true;
+            lblPowerStatus.Location = new Point(15, 74);
+            lblPowerStatus.Name = "lblPowerStatus";
+            lblPowerStatus.Size = new Size(137, 20);
+            lblPowerStatus.TabIndex = 6;
+            lblPowerStatus.Text = "产品供电状态: 开启";
+            // 
+            // btnStopTempPhase
+            // 
+            btnStopTempPhase.Enabled = false;
+            btnStopTempPhase.Location = new Point(1026, 49);
+            btnStopTempPhase.Name = "btnStopTempPhase";
+            btnStopTempPhase.Size = new Size(100, 35);
+            btnStopTempPhase.TabIndex = 5;
+            btnStopTempPhase.Text = "停止";
+            btnStopTempPhase.UseVisualStyleBackColor = true;
+            // 
+            // btnStartTempPhase
+            // 
+            btnStartTempPhase.Location = new Point(916, 49);
+            btnStartTempPhase.Name = "btnStartTempPhase";
+            btnStartTempPhase.Size = new Size(100, 35);
+            btnStartTempPhase.TabIndex = 4;
+            btnStartTempPhase.Text = "开始";
+            btnStartTempPhase.UseVisualStyleBackColor = true;
+            // 
+            // lblProgress
+            // 
+            lblProgress.AutoSize = true;
+            lblProgress.Location = new Point(720, 35);
+            lblProgress.Name = "lblProgress";
+            lblProgress.Size = new Size(71, 20);
+            lblProgress.TabIndex = 3;
+            lblProgress.Text = "进度: 0/0";
+            // 
+            // lblChamberTemp
+            // 
+            lblChamberTemp.AutoSize = true;
+            lblChamberTemp.Location = new Point(530, 35);
+            lblChamberTemp.Name = "lblChamberTemp";
+            lblChamberTemp.Size = new Size(114, 20);
+            lblChamberTemp.TabIndex = 2;
+            lblChamberTemp.Text = "温箱设定: --.-℃";
+            // 
+            // txtCustomSequence
+            // 
+            txtCustomSequence.Location = new Point(210, 30);
+            txtCustomSequence.Name = "txtCustomSequence";
+            txtCustomSequence.PlaceholderText = "请输入自定义温度序列，如：35,-25,-52";
+            txtCustomSequence.Size = new Size(300, 27);
+            txtCustomSequence.TabIndex = 1;
+            txtCustomSequence.Visible = false;
+            // 
+            // cmbSequencePreset
+            // 
+            cmbSequencePreset.FormattingEnabled = true;
+            cmbSequencePreset.Items.AddRange(new object[] { "预设1（用户指定序列）", "预设2（全温度区间）", "自定义" });
+            cmbSequencePreset.Location = new Point(15, 30);
+            cmbSequencePreset.Name = "cmbSequencePreset";
+            cmbSequencePreset.Size = new Size(180, 28);
+            cmbSequencePreset.TabIndex = 0;
+            // 
             // FormCalibration
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
-            ClientSize = new Size(1157, 642);
+            ClientSize = new Size(1157, 762);
+            Controls.Add(gbTempPhase);
             Controls.Add(SwitchPower);
             Controls.Add(modechance);
             Controls.Add(antenna);
@@ -788,6 +878,8 @@ namespace 五通道自动测试.Calibration
             FreqItems.ResumeLayout(false);
             FreqItems.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvCalibrationResults).EndInit();
+            gbTempPhase.ResumeLayout(false);
+            gbTempPhase.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -855,5 +947,13 @@ namespace 五通道自动测试.Calibration
         private RadioButton jzchannel7;
         private ComboBox modechance;
         private Button SwitchPower;
+        private GroupBox gbTempPhase;
+        private ComboBox cmbSequencePreset;
+        private TextBox txtCustomSequence;
+        private Label lblChamberTemp;
+        private Label lblProgress;
+        private Button btnStartTempPhase;
+        private Button btnStopTempPhase;
+        private Label lblPowerStatus;
     }
 }

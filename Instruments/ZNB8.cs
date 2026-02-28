@@ -154,5 +154,52 @@ namespace 五通道自动测试.Instruments
         {
             Write($":OUTP {(enable ? 1 : 0)}");
         }
+
+        /// <summary>
+        /// 选择轨迹（Trc1或Trc2）
+        /// </summary>
+        /// <param name="traceName">轨迹名称，如"Trc1"或"Trc2"</param>
+        public void SelectTrace(string traceName)
+        {
+            Write($":CALCulate1:PARameter:SELect '{traceName}'");
+        }
+
+        /// <summary>
+        /// 选择轨迹1（相位）
+        /// </summary>
+        public void SelectTrace1()
+        {
+            SelectTrace("Trc1");
+        }
+
+        /// <summary>
+        /// 选择轨迹2（幅度）
+        /// </summary>
+        public void SelectTrace2()
+        {
+            SelectTrace("Trc2");
+        }
+
+        /// <summary>
+        /// 读取轨迹1的mark1值（相位）
+        /// </summary>
+        /// <returns>相位mark值</returns>
+        public double ReadTrace1Mark()
+        {
+            SelectTrace1();
+            Write(":CALCulate1:MARKer1:STAT ON");
+            return double.Parse(Query(":CALCulate1:MARKer1:Y?"));
+        }
+
+        /// <summary>
+        /// 读取轨迹2的mark1值（幅度）
+        /// </summary>
+        /// <returns>幅度mark值</returns>
+        public double ReadTrace2Mark()
+        {
+            SelectTrace2();
+            Write(":CALCulate1:MARKer1:STAT ON");
+            return double.Parse(Query(":CALCulate1:MARKer1:Y?"));
+        }
     }
 }

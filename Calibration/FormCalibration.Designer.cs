@@ -71,7 +71,7 @@ namespace 五通道自动测试.Calibration
             openTempSerialPort = new Button();
             AllRead = new Button();
             startPhase = new Button();
-            button2 = new Button();
+            btnAutoCalibration = new Button();
             ultraWork = new Button();
             ultraWork2 = new Button();
             normal = new RadioButton();
@@ -672,14 +672,14 @@ namespace 五通道自动测试.Calibration
             startPhase.UseVisualStyleBackColor = true;
             startPhase.Click += btnStartVerification_Click;
             // 
-            // button2
+            // btnAutoCalibration
             // 
-            button2.Location = new Point(5, 579);
-            button2.Name = "button2";
-            button2.Size = new Size(843, 61);
-            button2.TabIndex = 14;
-            button2.Text = "button2";
-            button2.UseVisualStyleBackColor = true;
+            btnAutoCalibration.Location = new Point(5, 579);
+            btnAutoCalibration.Name = "btnAutoCalibration";
+            btnAutoCalibration.Size = new Size(843, 61);
+            btnAutoCalibration.TabIndex = 14;
+            btnAutoCalibration.Text = "自动校准";
+            btnAutoCalibration.UseVisualStyleBackColor = true;
             // 
             // ultraWork
             // 
@@ -753,7 +753,7 @@ namespace 五通道自动测试.Calibration
             Controls.Add(normal);
             Controls.Add(ultraWork2);
             Controls.Add(ultraWork);
-            Controls.Add(button2);
+            Controls.Add(btnAutoCalibration);
             Controls.Add(startPhase);
             Controls.Add(AllRead);
             Controls.Add(openTempSerialPort);
@@ -836,7 +836,7 @@ namespace 五通道自动测试.Calibration
         private Button read3;
         private Button write2;
         private Button read2;
-        private Button button2;
+        private Button btnAutoCalibration;
         private Button ultraWork;
         private Button ultraWork2;
         private RadioButton normal;

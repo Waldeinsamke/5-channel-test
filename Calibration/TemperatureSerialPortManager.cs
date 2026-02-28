@@ -13,6 +13,8 @@ namespace 五通道自动测试.Calibration
         private readonly Action<string> _logMessageCallback;
         private readonly Action<ushort, byte> _eepromDataReceivedCallback;
 
+        public TemperatureSerialPort TemperatureSerialPort => _temperatureSerialPort;
+
         /// <summary>
         /// 构造函数
         /// </summary>

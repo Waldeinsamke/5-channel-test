@@ -412,6 +412,9 @@ namespace 五通道自动测试.Calibration
             SwitchPower.FlatAppearance.BorderSize = 0;
             SwitchPower.Click += SwitchPower_Click;
 
+            // 绑定自动校准按钮事件
+            btnAutoCalibration.Click += btnAutoCalibration_Click;
+
             // 绑定DAC High上下箭头按钮的长按事件
             btnUpDacHigh.MouseDown += (s, e) => StartLongPress(txtCalDacHigh, 1);
             btnUpDacHigh.MouseUp += (s, e) => StopLongPress();
@@ -1771,6 +1774,137 @@ namespace 五通道自动测试.Calibration
             if (_targetTextBox != null)
             {
                 _calibrationUIUpdater.AdjustNumericValue(_targetTextBox, _repeatDirection);
+            }
+        }
+
+        private async void btnAutoCalibration_Click(object sender, EventArgs e)
+        {
+            if (_instrumentManager == null || !_instrumentManager.ZNB8.IsConnected)
+            {
+                MessageBox.Show("ZNB8未连接", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (_temperatureSerialPortManager == null)
+            {
+                MessageBox.Show("温度串口未初始化", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            btnAutoCalibration.Enabled = false;
+            btnAutoCalibration.Text = "校准中...";
+
+            try
+            {
+                var calibrationService = new AutoCalibrationService(
+                    _instrumentManager.ZNB8,
+                    _temperatureSerialPortManager.TemperatureSerialPort,
+                    _calibrationLogic,
+                    _addressCalculator8,
+                    _channelMode);
+
+                calibrationService.LogMessage += msg => LogMessage(msg);
+                calibrationService.ProgressChanged += (current, total) =>
+                {
+                    if (this.InvokeRequired)
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            btnAutoCalibration.Text = $"校准中... ({current}/{total})";
+                        }));
+                    }
+                };
+
+                calibrationService.ParameterWritten += (paramName, value) =>
+                {
+                    if (this.InvokeRequired)
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            switch (paramName)
+                            {
+                                case "DacHigh":
+                                    txtCalDacHigh.Text = value.ToString("X2");
+                                    break;
+                                case "DacLow":
+                                    txtCalDacLow.Text = value.ToString("X2");
+                                    break;
+                                case "XndHigh":
+                                    txtCalXndHigh.Text = value.ToString("X2");
+                                    break;
+                                case "XndLow":
+                                    txtCalXndLow.Text = value.ToString("X2");
+                                    break;
+                            }
+                        }));
+                    }
+                };
+
+                var request = new CalibrationRequest
+                {
+                    Channel = _currentChannel,
+                    FrequencyIndex = _frequencyIndex,
+                    TemperatureIndex = _temperatureIndex,
+                    Mode = _currentMode,
+                    TargetAmplitude = 0,
+                    TargetPhase = 0,
+                    InitialDacHigh = ParseHexByte(txtCalDacHigh.Text),
+                    InitialDacLow = ParseHexByte(txtCalDacLow.Text),
+                    InitialXndHigh = ParseHexByte(txtCalXndHigh.Text),
+                    InitialXndLow = ParseHexByte(txtCalXndLow.Text)
+                };
+
+                var result = await calibrationService.CalibrateAsync(request);
+
+                if (result.Success)
+                {
+                    MessageBox.Show(
+                        $"校准完成！\n\n" +
+                        $"幅度: {result.FinalAmplitude:F2}\n" +
+                        $"相位: {result.FinalPhase:F2}\n" +
+                        $"迭代次数: {result.Iterations}",
+                        "成功",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show(
+                        $"校准未完全收敛\n\n" +
+                        $"原因: {result.Message}\n" +
+                        $"最终幅度: {result.FinalAmplitude:F2}\n" +
+                        $"最终相位: {result.FinalPhase:F2}",
+                        "警告",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"校准失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogMessage($"自动校准异常: {ex.Message}");
+            }
+            finally
+            {
+                btnAutoCalibration.Enabled = true;
+                btnAutoCalibration.Text = "自动校准";
+            }
+        }
+
+        private byte ParseHexByte(string hexString)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(hexString))
+                    return 0;
+                hexString = hexString.Trim();
+                if (byte.TryParse(hexString, System.Globalization.NumberStyles.HexNumber, null, out byte value))
+                    return value;
+                return 0;
+            }
+            catch
+            {
+                return 0;
             }
         }
     }

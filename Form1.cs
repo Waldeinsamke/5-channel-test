@@ -796,7 +796,9 @@ namespace 五通道自动测试
             if (dialog.ShowDialog() != DialogResult.OK)
                 return;
 
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Template", "测试报告模板.xlsx");
+            int maxChannel = results.Max(r => r.Channel);
+            string templateFileName = maxChannel > 5 ? "八通道测试报告模板.xlsx" : "五通道测试报告模板.xlsx";
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Template", templateFileName);
 
             var service = new ExcelExportService();
             if (service.ExportToExcel(templatePath, dialog.FileName, results))

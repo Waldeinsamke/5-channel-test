@@ -57,6 +57,7 @@ namespace 五通道自动测试.Calibration
             read1 = new Button();
             menuStrip1 = new MenuStrip();
             常温测试ToolStripMenuItem = new ToolStripMenuItem();
+            温箱控制ToolStripMenuItem = new ToolStripMenuItem();
             FreqItems = new GroupBox();
             button3390 = new RadioButton();
             button3330 = new RadioButton();
@@ -512,7 +513,7 @@ namespace 五通道自动测试.Calibration
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { 常温测试ToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { 常温测试ToolStripMenuItem, 温箱控制ToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1157, 28);
@@ -525,6 +526,13 @@ namespace 五通道自动测试.Calibration
             常温测试ToolStripMenuItem.Size = new Size(83, 24);
             常温测试ToolStripMenuItem.Text = "常温测试";
             常温测试ToolStripMenuItem.Click += 常温测试ToolStripMenuItem_Click;
+            // 
+            // 温箱控制ToolStripMenuItem
+            // 
+            温箱控制ToolStripMenuItem.Name = "温箱控制ToolStripMenuItem";
+            温箱控制ToolStripMenuItem.Size = new Size(83, 24);
+            温箱控制ToolStripMenuItem.Text = "温箱控制";
+            温箱控制ToolStripMenuItem.Click += 温箱控制ToolStripMenuItem_Click;
             // 
             // FreqItems
             // 
@@ -794,6 +802,7 @@ namespace 五通道自动测试.Calibration
         private GroupBox gbParameters;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem 常温测试ToolStripMenuItem;
+        private ToolStripMenuItem 温箱控制ToolStripMenuItem;
         private GroupBox FreqItems;
         public RadioButton button3390;
         public RadioButton button3330;

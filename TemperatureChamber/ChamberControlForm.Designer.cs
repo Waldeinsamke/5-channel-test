@@ -15,6 +15,9 @@ namespace TemperatureChamber
         /// </summary>
         private void InitializeComponent()
         {
+            menuStrip1 = new MenuStrip();
+            常温测试ToolStripMenuItem = new ToolStripMenuItem();
+            校准ToolStripMenuItem = new ToolStripMenuItem();
             gbChamberConnection = new GroupBox();
             btnChamberSettings = new Button();
             btnTestChamberConnection = new Button();
@@ -37,12 +40,37 @@ namespace TemperatureChamber
             lblTemperatureValue = new Label();
             label3 = new Label();
             txtTestLog = new TextBox();
+            menuStrip1.SuspendLayout();
             gbChamberConnection.SuspendLayout();
             gbTemperatureControl.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudTargetTemperature).BeginInit();
             gbChamberOperation.SuspendLayout();
             gbChamberStatus.SuspendLayout();
             SuspendLayout();
+            // 
+            // menuStrip1
+            // 
+            menuStrip1.ImageScalingSize = new Size(20, 20);
+            menuStrip1.Items.AddRange(new ToolStripItem[] { 常温测试ToolStripMenuItem, 校准ToolStripMenuItem });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(1248, 28);
+            menuStrip1.TabIndex = 6;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // 常温测试ToolStripMenuItem
+            // 
+            常温测试ToolStripMenuItem.Name = "常温测试ToolStripMenuItem";
+            常温测试ToolStripMenuItem.Size = new Size(83, 24);
+            常温测试ToolStripMenuItem.Text = "常温测试";
+            常温测试ToolStripMenuItem.Click += 常温测试ToolStripMenuItem_Click;
+            // 
+            // 校准ToolStripMenuItem
+            // 
+            校准ToolStripMenuItem.Name = "校准ToolStripMenuItem";
+            校准ToolStripMenuItem.Size = new Size(53, 24);
+            校准ToolStripMenuItem.Text = "校准";
+            校准ToolStripMenuItem.Click += 校准ToolStripMenuItem_Click;
             // 
             // gbChamberConnection
             // 
@@ -52,7 +80,7 @@ namespace TemperatureChamber
             gbChamberConnection.Controls.Add(btnConnectChamber);
             gbChamberConnection.Controls.Add(lblChamberStatus);
             gbChamberConnection.Controls.Add(pbChamberStatus);
-            gbChamberConnection.Location = new Point(18, 20);
+            gbChamberConnection.Location = new Point(18, 33);
             gbChamberConnection.Margin = new Padding(4, 5, 4, 5);
             gbChamberConnection.Name = "gbChamberConnection";
             gbChamberConnection.Padding = new Padding(4, 5, 4, 5);
@@ -128,7 +156,7 @@ namespace TemperatureChamber
             gbTemperatureControl.Controls.Add(btnSetTemperature);
             gbTemperatureControl.Controls.Add(nudTargetTemperature);
             gbTemperatureControl.Controls.Add(label2);
-            gbTemperatureControl.Location = new Point(18, 203);
+            gbTemperatureControl.Location = new Point(18, 216);
             gbTemperatureControl.Margin = new Padding(4, 5, 4, 5);
             gbTemperatureControl.Name = "gbTemperatureControl";
             gbTemperatureControl.Padding = new Padding(4, 5, 4, 5);
@@ -163,7 +191,7 @@ namespace TemperatureChamber
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(15, 47);
+            label2.Location = new Point(22, 44);
             label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
             label2.Size = new Size(69, 20);
@@ -175,7 +203,7 @@ namespace TemperatureChamber
             gbChamberOperation.Controls.Add(btnStopChamber);
             gbChamberOperation.Controls.Add(btnStartChamber);
             gbChamberOperation.Controls.Add(btnRefreshStatus);
-            gbChamberOperation.Location = new Point(18, 455);
+            gbChamberOperation.Location = new Point(18, 481);
             gbChamberOperation.Margin = new Padding(4, 5, 4, 5);
             gbChamberOperation.Name = "gbChamberOperation";
             gbChamberOperation.Padding = new Padding(4, 5, 4, 5);
@@ -224,7 +252,7 @@ namespace TemperatureChamber
             gbChamberStatus.Controls.Add(label6);
             gbChamberStatus.Controls.Add(lblTemperatureValue);
             gbChamberStatus.Controls.Add(label3);
-            gbChamberStatus.Location = new Point(18, 363);
+            gbChamberStatus.Location = new Point(18, 389);
             gbChamberStatus.Margin = new Padding(4, 5, 4, 5);
             gbChamberStatus.Name = "gbChamberStatus";
             gbChamberStatus.Padding = new Padding(4, 5, 4, 5);
@@ -296,6 +324,7 @@ namespace TemperatureChamber
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1248, 773);
+            Controls.Add(menuStrip1);
             Controls.Add(txtTestLog);
             Controls.Add(gbChamberStatus);
             Controls.Add(gbChamberOperation);
@@ -305,6 +334,8 @@ namespace TemperatureChamber
             Name = "ChamberControlForm";
             Text = "温箱控制";
             FormClosed += ChamberControlForm_FormClosed;
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
             gbChamberConnection.ResumeLayout(false);
             gbChamberConnection.PerformLayout();
             gbTemperatureControl.ResumeLayout(false);
@@ -342,5 +373,8 @@ namespace TemperatureChamber
         private System.Windows.Forms.Label lblTemperatureValue;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txtTestLog;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem 常温测试ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 校准ToolStripMenuItem;
     }
 }

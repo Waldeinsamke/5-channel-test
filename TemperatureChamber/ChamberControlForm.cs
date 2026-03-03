@@ -2,6 +2,7 @@ using TemperatureChamber;
 using TemperatureChamber.Models;
 using System;
 using System.Windows.Forms;
+using 五通道自动测试;
 
 namespace TemperatureChamber
 {
@@ -9,9 +10,11 @@ namespace TemperatureChamber
     {
         private ChamberController? _chamberController;
         private ChamberConfig? _chamberConfig;
+        private Form? _mainForm;
 
-        public ChamberControlForm()
+        public ChamberControlForm(Form? mainForm = null)
         {
+            _mainForm = mainForm;
             InitializeComponent();
             MaximizeBox = false;
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -479,6 +482,24 @@ namespace TemperatureChamber
                 _chamberController.StatusUpdated -= OnChamberStatusUpdated;
                 _chamberController.Debug -= OnChamberDebug;
                 _chamberController.Dispose();
+            }
+        }
+
+        private void 常温测试ToolStripMenuItem_Click(object? sender, EventArgs e)
+        {
+            this.Hide();
+            if (_mainForm is Form1 mainForm)
+            {
+                mainForm.SwitchToNormalMode();
+            }
+        }
+
+        private void 校准ToolStripMenuItem_Click(object? sender, EventArgs e)
+        {
+            this.Hide();
+            if (_mainForm is Form1 mainForm)
+            {
+                mainForm.SwitchToCalibrationMode();
             }
         }
     }

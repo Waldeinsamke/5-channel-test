@@ -1559,11 +1559,24 @@ namespace 五通道自动测试.Calibration
         }
 
         /// <summary>
-        /// 常温测试菜单点击事件，关闭当前校准窗体
+        /// 常温测试菜单点击事件，隐藏当前校准窗体并显示主窗体
         /// </summary>
         private void 常温测试ToolStripMenuItem_Click(object? sender, EventArgs e)
         {
-            this.Close();
+            this.Hide();
+            if (_mainForm is Form1 mainForm)
+            {
+                mainForm.SwitchToNormalMode();
+            }
+        }
+
+        private void 温箱控制ToolStripMenuItem_Click(object? sender, EventArgs e)
+        {
+            this.Hide();
+            if (_mainForm is Form1 mainForm)
+            {
+                mainForm.SwitchToChamberMode();
+            }
         }
 
         /// <summary>

@@ -1054,12 +1054,18 @@ namespace 五通道自动测试
             if (_isCalibrationMode)
                 return;
 
-            _isCalibrationMode = true;
-            
-            _calibrationForm = new FormCalibration(_instrumentManager, this);
-            _calibrationForm.FormClosed += CalibrationForm_FormClosed;
-            _calibrationForm.Show();
-            
+            if (_calibrationForm != null && !_calibrationForm.IsDisposed)
+            {
+                _calibrationForm.Show();
+            }
+            else
+            {
+                _isCalibrationMode = true;
+                _calibrationForm = new FormCalibration(_instrumentManager, this);
+                _calibrationForm.FormClosed += CalibrationForm_FormClosed;
+                _calibrationForm.Show();
+            }
+
             this.Hide();
         }
 
@@ -1072,7 +1078,7 @@ namespace 五通道自动测试
             {
                 if (_calibrationForm != null && !_calibrationForm.IsDisposed)
                 {
-                    _calibrationForm.Close();
+                    _calibrationForm.Hide();
                     _calibrationForm = null;
                 }
                 _isCalibrationMode = false;
@@ -1080,10 +1086,10 @@ namespace 五通道自动测试
             else if (_isChamberMode)
             {
                 _isChamberMode = false;
-                // 清理温箱控制表单
+                // 隐藏温箱控制表单
                 if (_chamberControlForm != null && !_chamberControlForm.IsDisposed)
                 {
-                    _chamberControlForm.Close();
+                    _chamberControlForm.Hide();
                     _chamberControlForm = null;
                 }
             }
@@ -1134,13 +1140,18 @@ namespace 五通道自动测试
         /// </summary>
         private void ShowChamberControlForm()
         {
-            // 隐藏当前表单
-            this.Hide();
+            if (_chamberControlForm != null && !_chamberControlForm.IsDisposed)
+            {
+                _chamberControlForm.Show();
+            }
+            else
+            {
+                _chamberControlForm = new ChamberControlForm(this);
+                _chamberControlForm.FormClosed += ChamberControlForm_FormClosed;
+                _chamberControlForm.Show();
+            }
 
-            // 创建并显示温箱控制表单
-            _chamberControlForm = new ChamberControlForm();
-            _chamberControlForm.FormClosed += ChamberControlForm_FormClosed;
-            _chamberControlForm.Show();
+            this.Hide();
         }
 
         /// <summary>
@@ -1151,6 +1162,87 @@ namespace 五通道自动测试
             _isChamberMode = false;
             _chamberControlForm = null;
             this.Show();
+        }
+
+        /// <summary>
+        /// 切换到常温测试模式（供子界面调用）
+        /// </summary>
+        public void SwitchToNormalMode()
+        {
+            _isCalibrationMode = false;
+            _isChamberMode = false;
+
+            if (_calibrationForm != null && !_calibrationForm.IsDisposed)
+            {
+                _calibrationForm.Hide();
+            }
+            if (_chamberControlForm != null && !_chamberControlForm.IsDisposed)
+            {
+                _chamberControlForm.Hide();
+            }
+
+            gbInstrumentStatus?.Show();
+            gbTestItems?.Show();
+            gbChannels?.Show();
+            dgvTestResults?.Show();
+            btnClearResults?.Show();
+            btnExportReport?.Show();
+            PowerSwitch?.Show();
+            textBox1?.Show();
+            Sendmessage?.Show();
+
+            this.Show();
+        }
+
+        public void SwitchToCalibrationMode()
+        {
+            if (_instrumentManager == null)
+                return;
+
+            _isCalibrationMode = true;
+            _isChamberMode = false;
+
+            if (_chamberControlForm != null && !_chamberControlForm.IsDisposed)
+            {
+                _chamberControlForm.Hide();
+            }
+
+            if (_calibrationForm != null && !_calibrationForm.IsDisposed)
+            {
+                _calibrationForm.Show();
+            }
+            else
+            {
+                _calibrationForm = new FormCalibration(_instrumentManager, this);
+                _calibrationForm.FormClosed += CalibrationForm_FormClosed;
+                _calibrationForm.Show();
+            }
+
+            this.Hide();
+        }
+
+        public void SwitchToChamberMode()
+        {
+            _isChamberMode = true;
+            _isCalibrationMode = false;
+
+            if (_calibrationForm != null && !_calibrationForm.IsDisposed)
+            {
+                _calibrationForm.Hide();
+            }
+
+            if (_chamberControlForm != null && !_chamberControlForm.IsDisposed)
+            {
+                _chamberControlForm.Show();
+            }
+            else
+            {
+                _chamberControlForm = new ChamberControlForm(this);
+                _chamberControlForm.FormClosed += ChamberControlForm_FormClosed;
+                _chamberControlForm.Show();
+            }
+
+            this.Hide();
         }
     }
 }

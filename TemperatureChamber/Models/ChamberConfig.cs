@@ -5,7 +5,7 @@ namespace TemperatureChamber.Models
     /// <summary>
     /// 温箱配置类
     /// 包含温箱设备的所有配置参数
-    /// 包括串口参数、Modbus参数、温度/湿度范围等
+    /// 包括串口参数、Modbus参数、温度范围等
     /// </summary>
     public class ChamberConfig
     {
@@ -62,17 +62,5 @@ namespace TemperatureChamber.Models
         /// 默认值: 150.0
         /// </summary>
         public double MaxTemperature { get; set; } = 150.0;
-        
-        /// <summary>
-        /// 最低湿度(%)
-        /// 默认值: 20.0
-        /// </summary>
-        public double MinHumidity { get; set; } = 20.0;
-        
-        /// <summary>
-        /// 最高湿度(%)
-        /// 默认值: 98.0
-        /// </summary>
-        public double MaxHumidity { get; set; } = 98.0;
     }
 }

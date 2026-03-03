@@ -79,15 +79,15 @@ namespace TemperatureChamber.Communication
 
         /// <summary>
         /// 读取当前温度
-        /// 地址: 0x07D5, 值需除以100得到实际温度
+        /// 地址: 0x0000, 值需除以100得到实际温度
         /// </summary>
         /// <returns>温度值（℃）</returns>
         public double ReadTemperature()
         {
             try
             {
-                OnDebug($"开始读取温度，寄存器地址: 0x07D5, 数量: 1");
-                ushort[] registers = ReadHoldingRegisters(0x07D5, 1);
+                OnDebug($"开始读取温度，寄存器地址: 0x0000, 数量: 1");
+                ushort[] registers = ReadHoldingRegisters(0x0000, 1);
                 OnDebug($"读取到原始值: {registers[0]} (0x{registers[0]:X4})");
                 double temperature = registers[0] / 100.0;
                 OnDebug($"转换后温度: {temperature:F2}℃");
@@ -102,15 +102,15 @@ namespace TemperatureChamber.Communication
 
         /// <summary>
         /// 读取设备运行状态
-        /// 地址: 0x01F5, 推荐用于测试连通性
+        /// 地址: 0x0018
         /// </summary>
         /// <returns>运行状态值</returns>
         public ushort ReadDeviceStatus()
         {
             try
             {
-                OnDebug($"开始读取运行状态，寄存器地址: 0x01F5, 数量: 1");
-                ushort[] registers = ReadHoldingRegisters(0x01F5, 1);
+                OnDebug($"开始读取运行状态，寄存器地址: 0x0018, 数量: 1");
+                ushort[] registers = ReadHoldingRegisters(0x0018, 1);
                 OnDebug($"读取到运行状态值: {registers[0]} (0x{registers[0]:X4})");
                 return registers[0];
             }
@@ -141,13 +141,15 @@ namespace TemperatureChamber.Communication
 
         /// <summary>
         /// 启动设备
-        /// 地址: 寄存器0x01F4, 值1
+        /// 地址: 线圈0x0000, 值ON (FF 00)
         /// </summary>
         public void StartDevice()
         {
             try
             {
-                WriteSingleRegister(0x01F4, 1);
+                OnDebug($"启动设备，线圈地址: 0x0000");
+                WriteSingleCoil(0x0000, true);
+                OnDebug("启动设备成功");
             }
             catch (Exception ex)
             {
@@ -158,13 +160,15 @@ namespace TemperatureChamber.Communication
 
         /// <summary>
         /// 停止设备
-        /// 地址: 寄存器0x01F4, 值0
+        /// 地址: 线圈0x0001, 值ON (FF 00)
         /// </summary>
         public void StopDevice()
         {
             try
             {
-                WriteSingleRegister(0x01F4, 0);
+                OnDebug($"停止设备，线圈地址: 0x0001");
+                WriteSingleCoil(0x0001, true);
+                OnDebug("停止设备成功");
             }
             catch (Exception ex)
             {
@@ -317,34 +321,42 @@ namespace TemperatureChamber.Communication
             _serialPort.Read(header, 0, 5);
 
             byte byteCount = header[2];
-            int expectedLength = 5 + byteCount;
+            int dataLength = byteCount;
+            int remainingBytes = dataLength;
 
-            OnDebug($"读取到响应头: {BitConverter.ToString(header).Replace("-", " ")}, 字节计数: {byteCount}, 期望总长度: {expectedLength}");
+            OnDebug($"读取到响应头: {BitConverter.ToString(header).Replace("-", " ")}, 字节计数: {byteCount}, 还需读取: {remainingBytes} 字节 (数据:{dataLength})");
 
-            while (_serialPort.BytesToRead < (expectedLength - 5))
+            OnDebug($"等待数据中... 当前可读: {_serialPort.BytesToRead}");
+            while (_serialPort.BytesToRead < remainingBytes)
             {
                 if (Environment.TickCount - startTime > timeout)
                 {
-                    OnDebug($"读取响应数据超时! 已读取: 5, 还需要: {expectedLength - 5}, 当前可读: {_serialPort.BytesToRead}");
+                    OnDebug($"读取响应数据超时! 已读取: 5, 还需要: {remainingBytes}, 当前可读: {_serialPort.BytesToRead}");
                     throw new TimeoutException("读取响应超时");
                 }
                 System.Threading.Thread.Sleep(10);
+                if (_serialPort.BytesToRead >= remainingBytes)
+                {
+                    OnDebug($"数据到达! 当前可读: {_serialPort.BytesToRead}");
+                    break;
+                }
             }
 
+            OnDebug($"开始读取 {byteCount} 字节数据...");
             byte[] data = new byte[byteCount];
             _serialPort.Read(data, 0, byteCount);
+            OnDebug($"数据内容: {BitConverter.ToString(data).Replace("-", " ")}");
 
-            byte[] crc = new byte[2];
-            _serialPort.Read(crc, 0, 2);
+            OnDebug("跳过CRC读取（设备不返回CRC）");
 
-            byte[] response = new byte[expectedLength];
+            int actualResponseLength = 5 + byteCount;
+            byte[] response = new byte[actualResponseLength];
             Array.Copy(header, 0, response, 0, 5);
             Array.Copy(data, 0, response, 5, byteCount);
-            Array.Copy(crc, 0, response, 5 + byteCount, 2);
 
             OnDebug($"接收响应帧: {BitConverter.ToString(response).Replace("-", " ")}");
 
-            VerifyCRC(response);
+            OnDebug("跳过CRC校验（设备不返回CRC）");
 
             return response;
         }

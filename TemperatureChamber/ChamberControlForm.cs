@@ -25,7 +25,7 @@ namespace TemperatureChamber
         {
             _chamberConfig = new ChamberConfig
             {
-                PortName = "COM19",
+                PortName = "COM4",
                 BaudRate = 38400,
                 DataBits = 8,
                 Parity = System.IO.Ports.Parity.Even,
@@ -33,9 +33,7 @@ namespace TemperatureChamber
                 SlaveId = 1,
                 Timeout = 10000,
                 MinTemperature = -40,
-                MaxTemperature = 150,
-                MinHumidity = 20,
-                MaxHumidity = 95
+                MaxTemperature = 150
             };
 
             _chamberController = new ChamberController(_chamberConfig);
@@ -91,7 +89,7 @@ namespace TemperatureChamber
             {
                 if (txtTestLog != null)
                 {
-                    string message = $"温箱状态：温度={status.Temperature:F1}℃，湿度={status.Humidity:F1}%，运行状态={(status.IsRunning ? "运行中" : "停止")}";
+                    string message = $"温箱状态：温度={status.Temperature:F1}℃，运行状态={(status.IsRunning ? "运行中" : "停止")}";
                     txtTestLog.AppendText($"[{DateTime.Now:HH:mm:ss}] {message}\r\n");
                     txtTestLog.ScrollToCaret();
                 }
@@ -99,11 +97,6 @@ namespace TemperatureChamber
                 if (lblTemperatureValue != null)
                 {
                     lblTemperatureValue.Text = $"{status.Temperature:F1}℃";
-                }
-
-                if (lblHumidityValue != null)
-                {
-                    lblHumidityValue.Text = $"{status.Humidity:F1}%RH";
                 }
 
                 if (lblRunningStatus != null)
@@ -115,12 +108,6 @@ namespace TemperatureChamber
                 if (pbRunningStatus != null)
                 {
                     pbRunningStatus.BackColor = status.IsRunning ? Color.Green : Color.Red;
-                }
-
-                if (txtChamberStatus != null)
-                {
-                    txtChamberStatus.AppendText($"[{DateTime.Now:HH:mm:ss}] 温度：{status.Temperature:F1}℃，湿度：{status.Humidity:F1}%RH，状态：{(status.IsRunning ? "运行中" : "停止")}\r\n");
-                    txtChamberStatus.ScrollToCaret();
                 }
             }
             catch (Exception ex)

@@ -16,7 +16,6 @@ namespace TemperatureChamber
         private void InitializeComponent()
         {
             gbChamberConnection = new GroupBox();
-            btnSerialPortTest = new Button();
             btnChamberSettings = new Button();
             btnTestChamberConnection = new Button();
             btnDisconnectChamber = new Button();
@@ -27,36 +26,26 @@ namespace TemperatureChamber
             btnSetTemperature = new Button();
             nudTargetTemperature = new NumericUpDown();
             label2 = new Label();
-            gbHumidityControl = new GroupBox();
-            btnSetHumidity = new Button();
-            nudTargetHumidity = new NumericUpDown();
-            label4 = new Label();
             gbChamberOperation = new GroupBox();
             btnStopChamber = new Button();
             btnStartChamber = new Button();
             btnRefreshStatus = new Button();
             gbChamberStatus = new GroupBox();
-            txtChamberStatus = new TextBox();
             lblRunningStatus = new Label();
             pbRunningStatus = new Panel();
             label6 = new Label();
-            lblHumidityValue = new Label();
-            label5 = new Label();
             lblTemperatureValue = new Label();
             label3 = new Label();
             txtTestLog = new TextBox();
             gbChamberConnection.SuspendLayout();
             gbTemperatureControl.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudTargetTemperature).BeginInit();
-            gbHumidityControl.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)nudTargetHumidity).BeginInit();
             gbChamberOperation.SuspendLayout();
             gbChamberStatus.SuspendLayout();
             SuspendLayout();
             // 
             // gbChamberConnection
             // 
-            gbChamberConnection.Controls.Add(btnSerialPortTest);
             gbChamberConnection.Controls.Add(btnChamberSettings);
             gbChamberConnection.Controls.Add(btnTestChamberConnection);
             gbChamberConnection.Controls.Add(btnDisconnectChamber);
@@ -72,22 +61,12 @@ namespace TemperatureChamber
             gbChamberConnection.TabStop = false;
             gbChamberConnection.Text = "温箱连接";
             // 
-            // btnSerialPortTest
-            // 
-            btnSerialPortTest.Location = new Point(392, 105);
-            btnSerialPortTest.Margin = new Padding(4, 5, 4, 5);
-            btnSerialPortTest.Name = "btnSerialPortTest";
-            btnSerialPortTest.Size = new Size(180, 50);
-            btnSerialPortTest.TabIndex = 6;
-            btnSerialPortTest.Text = "串口测试";
-            btnSerialPortTest.UseVisualStyleBackColor = true;
-            // 
             // btnChamberSettings
             // 
-            btnChamberSettings.Location = new Point(204, 105);
+            btnChamberSettings.Location = new Point(392, 103);
             btnChamberSettings.Margin = new Padding(4, 5, 4, 5);
             btnChamberSettings.Name = "btnChamberSettings";
-            btnChamberSettings.Size = new Size(165, 50);
+            btnChamberSettings.Size = new Size(180, 50);
             btnChamberSettings.TabIndex = 5;
             btnChamberSettings.Text = "参数配置";
             btnChamberSettings.UseVisualStyleBackColor = true;
@@ -95,10 +74,10 @@ namespace TemperatureChamber
             // 
             // btnTestChamberConnection
             // 
-            btnTestChamberConnection.Location = new Point(15, 105);
+            btnTestChamberConnection.Location = new Point(204, 103);
             btnTestChamberConnection.Margin = new Padding(4, 5, 4, 5);
             btnTestChamberConnection.Name = "btnTestChamberConnection";
-            btnTestChamberConnection.Size = new Size(178, 50);
+            btnTestChamberConnection.Size = new Size(165, 50);
             btnTestChamberConnection.TabIndex = 4;
             btnTestChamberConnection.Text = "测试连接";
             btnTestChamberConnection.UseVisualStyleBackColor = true;
@@ -111,7 +90,7 @@ namespace TemperatureChamber
             btnDisconnectChamber.Name = "btnDisconnectChamber";
             btnDisconnectChamber.Size = new Size(180, 50);
             btnDisconnectChamber.TabIndex = 3;
-            btnDisconnectChamber.Text = "断开连接";
+            btnDisconnectChamber.Text = "断开设备";
             btnDisconnectChamber.UseVisualStyleBackColor = true;
             btnDisconnectChamber.Click += btnDisconnectChamber_Click;
             // 
@@ -153,7 +132,7 @@ namespace TemperatureChamber
             gbTemperatureControl.Margin = new Padding(4, 5, 4, 5);
             gbTemperatureControl.Name = "gbTemperatureControl";
             gbTemperatureControl.Padding = new Padding(4, 5, 4, 5);
-            gbTemperatureControl.Size = new Size(292, 150);
+            gbTemperatureControl.Size = new Size(288, 150);
             gbTemperatureControl.TabIndex = 1;
             gbTemperatureControl.TabStop = false;
             gbTemperatureControl.Text = "温度控制";
@@ -191,58 +170,12 @@ namespace TemperatureChamber
             label2.TabIndex = 0;
             label2.Text = "目标温度";
             // 
-            // gbHumidityControl
-            // 
-            gbHumidityControl.Controls.Add(btnSetHumidity);
-            gbHumidityControl.Controls.Add(nudTargetHumidity);
-            gbHumidityControl.Controls.Add(label4);
-            gbHumidityControl.Location = new Point(318, 203);
-            gbHumidityControl.Margin = new Padding(4, 5, 4, 5);
-            gbHumidityControl.Name = "gbHumidityControl";
-            gbHumidityControl.Padding = new Padding(4, 5, 4, 5);
-            gbHumidityControl.Size = new Size(300, 150);
-            gbHumidityControl.TabIndex = 2;
-            gbHumidityControl.TabStop = false;
-            gbHumidityControl.Text = "湿度控制";
-            // 
-            // btnSetHumidity
-            // 
-            btnSetHumidity.Location = new Point(15, 100);
-            btnSetHumidity.Margin = new Padding(4, 5, 4, 5);
-            btnSetHumidity.Name = "btnSetHumidity";
-            btnSetHumidity.Size = new Size(255, 38);
-            btnSetHumidity.TabIndex = 2;
-            btnSetHumidity.Text = "设置湿度";
-            btnSetHumidity.UseVisualStyleBackColor = true;
-            // 
-            // nudTargetHumidity
-            // 
-            nudTargetHumidity.DecimalPlaces = 1;
-            nudTargetHumidity.Location = new Point(105, 42);
-            nudTargetHumidity.Margin = new Padding(4, 5, 4, 5);
-            nudTargetHumidity.Maximum = new decimal(new int[] { 95, 0, 0, 0 });
-            nudTargetHumidity.Minimum = new decimal(new int[] { 20, 0, 0, 0 });
-            nudTargetHumidity.Name = "nudTargetHumidity";
-            nudTargetHumidity.Size = new Size(165, 27);
-            nudTargetHumidity.TabIndex = 1;
-            nudTargetHumidity.Value = new decimal(new int[] { 50, 0, 0, 0 });
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Location = new Point(15, 47);
-            label4.Margin = new Padding(4, 0, 4, 0);
-            label4.Name = "label4";
-            label4.Size = new Size(69, 20);
-            label4.TabIndex = 0;
-            label4.Text = "目标湿度";
-            // 
             // gbChamberOperation
             // 
             gbChamberOperation.Controls.Add(btnStopChamber);
             gbChamberOperation.Controls.Add(btnStartChamber);
             gbChamberOperation.Controls.Add(btnRefreshStatus);
-            gbChamberOperation.Location = new Point(18, 363);
+            gbChamberOperation.Location = new Point(18, 455);
             gbChamberOperation.Margin = new Padding(4, 5, 4, 5);
             gbChamberOperation.Name = "gbChamberOperation";
             gbChamberOperation.Padding = new Padding(4, 5, 4, 5);
@@ -286,32 +219,19 @@ namespace TemperatureChamber
             // 
             // gbChamberStatus
             // 
-            gbChamberStatus.Controls.Add(txtChamberStatus);
             gbChamberStatus.Controls.Add(lblRunningStatus);
             gbChamberStatus.Controls.Add(pbRunningStatus);
             gbChamberStatus.Controls.Add(label6);
-            gbChamberStatus.Controls.Add(lblHumidityValue);
-            gbChamberStatus.Controls.Add(label5);
             gbChamberStatus.Controls.Add(lblTemperatureValue);
             gbChamberStatus.Controls.Add(label3);
-            gbChamberStatus.Location = new Point(18, 494);
+            gbChamberStatus.Location = new Point(18, 363);
             gbChamberStatus.Margin = new Padding(4, 5, 4, 5);
             gbChamberStatus.Name = "gbChamberStatus";
             gbChamberStatus.Padding = new Padding(4, 5, 4, 5);
-            gbChamberStatus.Size = new Size(600, 272);
+            gbChamberStatus.Size = new Size(600, 82);
             gbChamberStatus.TabIndex = 4;
             gbChamberStatus.TabStop = false;
             gbChamberStatus.Text = "温箱状态";
-            // 
-            // txtChamberStatus
-            // 
-            txtChamberStatus.Location = new Point(19, 99);
-            txtChamberStatus.Margin = new Padding(4, 5, 4, 5);
-            txtChamberStatus.Multiline = true;
-            txtChamberStatus.Name = "txtChamberStatus";
-            txtChamberStatus.ScrollBars = ScrollBars.Vertical;
-            txtChamberStatus.Size = new Size(553, 164);
-            txtChamberStatus.TabIndex = 7;
             // 
             // lblRunningStatus
             // 
@@ -340,26 +260,6 @@ namespace TemperatureChamber
             label6.Size = new Size(69, 20);
             label6.TabIndex = 4;
             label6.Text = "运行状态";
-            // 
-            // lblHumidityValue
-            // 
-            lblHumidityValue.AutoSize = true;
-            lblHumidityValue.Location = new Point(178, 74);
-            lblHumidityValue.Margin = new Padding(4, 0, 4, 0);
-            lblHumidityValue.Name = "lblHumidityValue";
-            lblHumidityValue.Size = new Size(56, 20);
-            lblHumidityValue.TabIndex = 3;
-            lblHumidityValue.Text = "--%RH";
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Location = new Point(88, 74);
-            label5.Margin = new Padding(4, 0, 4, 0);
-            label5.Name = "label5";
-            label5.Size = new Size(69, 20);
-            label5.TabIndex = 2;
-            label5.Text = "当前湿度";
             // 
             // lblTemperatureValue
             // 
@@ -399,7 +299,6 @@ namespace TemperatureChamber
             Controls.Add(txtTestLog);
             Controls.Add(gbChamberStatus);
             Controls.Add(gbChamberOperation);
-            Controls.Add(gbHumidityControl);
             Controls.Add(gbTemperatureControl);
             Controls.Add(gbChamberConnection);
             Margin = new Padding(4, 5, 4, 5);
@@ -411,9 +310,6 @@ namespace TemperatureChamber
             gbTemperatureControl.ResumeLayout(false);
             gbTemperatureControl.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)nudTargetTemperature).EndInit();
-            gbHumidityControl.ResumeLayout(false);
-            gbHumidityControl.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)nudTargetHumidity).EndInit();
             gbChamberOperation.ResumeLayout(false);
             gbChamberStatus.ResumeLayout(false);
             gbChamberStatus.PerformLayout();
@@ -425,7 +321,6 @@ namespace TemperatureChamber
         #endregion
 
         private System.Windows.Forms.GroupBox gbChamberConnection;
-        private System.Windows.Forms.Button btnSerialPortTest;
         private System.Windows.Forms.Button btnChamberSettings;
         private System.Windows.Forms.Button btnTestChamberConnection;
         private System.Windows.Forms.Button btnDisconnectChamber;
@@ -436,21 +331,14 @@ namespace TemperatureChamber
         private System.Windows.Forms.Button btnSetTemperature;
         private System.Windows.Forms.NumericUpDown nudTargetTemperature;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.GroupBox gbHumidityControl;
-        private System.Windows.Forms.Button btnSetHumidity;
-        private System.Windows.Forms.NumericUpDown nudTargetHumidity;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.GroupBox gbChamberOperation;
         private System.Windows.Forms.Button btnStopChamber;
         private System.Windows.Forms.Button btnStartChamber;
         private System.Windows.Forms.Button btnRefreshStatus;
         private System.Windows.Forms.GroupBox gbChamberStatus;
-        private System.Windows.Forms.TextBox txtChamberStatus;
         private System.Windows.Forms.Label lblRunningStatus;
         private System.Windows.Forms.Panel pbRunningStatus;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label lblHumidityValue;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label lblTemperatureValue;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txtTestLog;

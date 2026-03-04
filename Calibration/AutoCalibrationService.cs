@@ -221,14 +221,6 @@ namespace 五通道自动测试.Calibration
             }
         }
 
-        private byte ReadCurrentValue(ushort address)
-        {
-            if (address == 0) return 0;
-            _tempSerialPort.ReadEEPROM(address);
-            Thread.Sleep(50);
-            return 0;
-        }
-
         private class AmplitudeResult
         {
             public bool Success { get; set; }

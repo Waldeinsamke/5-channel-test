@@ -26,11 +26,6 @@ namespace 五通道自动测试.Test
         public event EventHandler<string>? LogGenerated;
         
         /// <summary>
-        /// 显示确认对话框事件（用于跨线程弹窗）
-        /// </summary>
-        public event EventHandler<string>? ShowConfirmDialog;
-        
-        /// <summary>
         /// 通道切换事件
         /// </summary>
         public event Action<int>? ChannelChanging;

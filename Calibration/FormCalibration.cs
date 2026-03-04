@@ -53,7 +53,6 @@ namespace 五通道自动测试.Calibration
         private readonly System.Windows.Forms.Timer _repeatTimer;
         private TextBox? _targetTextBox;
         private int _repeatDirection;
-        private bool _isLongPress;
 
         #endregion
 
@@ -106,8 +105,6 @@ namespace 五通道自动测试.Calibration
             _repeatTimer = new System.Windows.Forms.Timer();
             _repeatTimer.Interval = 50;
             _repeatTimer.Tick += OnRepeatTimerTick;
-
-            _isLongPress = false;
 
             // 初始化验证服务
             _verificationService = new VerificationService(
@@ -1764,7 +1761,6 @@ namespace 五通道自动测试.Calibration
         {
             _targetTextBox = targetTextBox;
             _repeatDirection = direction;
-            _isLongPress = false;
             _initialDelayTimer.Start();
         }
 
@@ -1772,13 +1768,11 @@ namespace 五通道自动测试.Calibration
         {
             _initialDelayTimer.Stop();
             _repeatTimer.Stop();
-            _isLongPress = false;
         }
 
         private void OnInitialDelayTimerTick(object? sender, EventArgs e)
         {
             _initialDelayTimer.Stop();
-            _isLongPress = true;
             _repeatTimer.Start();
         }
 

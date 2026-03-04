@@ -76,7 +76,13 @@ namespace TemperatureChamber
         /// 读取设备运行状态
         /// 推荐用于测试连通性
         /// </summary>
-        /// <returns>运行状态值</returns>
-        ushort ReadDeviceStatus();
+        /// <returns>运行状态 true=运行中, false=停止</returns>
+        bool ReadDeviceStatus();
+
+        /// <summary>
+        /// 读取故障信息
+        /// </summary>
+        /// <returns>故障代码，0表示无故障</returns>
+        ushort ReadFaultInfo();
     }
 }

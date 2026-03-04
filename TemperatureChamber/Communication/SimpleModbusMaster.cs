@@ -86,56 +86,65 @@ namespace TemperatureChamber.Communication
         {
             try
             {
-                OnDebug($"开始读取温度，寄存器地址: 0x0000, 数量: 1");
                 ushort[] registers = ReadHoldingRegisters(0x0000, 1);
-                OnDebug($"读取到原始值: {registers[0]} (0x{registers[0]:X4})");
                 double temperature = registers[0] / 100.0;
-                OnDebug($"转换后温度: {temperature:F2}℃");
                 return temperature;
             }
             catch (Exception ex)
             {
-                OnDebug($"读取温度异常: {ex.Message}");
-                throw new Exception($"读取温度失败: {ex.Message}", ex);
+                OnDebug($"读取温度失败: {ex.Message}");
+                throw;
             }
         }
 
         /// <summary>
         /// 读取设备运行状态
         /// 地址: 0x0018
+        /// 返回值第0位=1运行，=0停止
         /// </summary>
-        /// <returns>运行状态值</returns>
-        public ushort ReadDeviceStatus()
+        /// <returns>运行状态 true=运行中, false=停止</returns>
+        public bool ReadDeviceStatus()
         {
             try
             {
-                OnDebug($"开始读取运行状态，寄存器地址: 0x0018, 数量: 1");
                 ushort[] registers = ReadHoldingRegisters(0x0018, 1);
-                OnDebug($"读取到运行状态值: {registers[0]} (0x{registers[0]:X4})");
-                return registers[0];
+                ushort rawValue = registers[0];
+                bool isRunning = (rawValue & 0x0001) == 1;
+                return isRunning;
             }
             catch (Exception ex)
             {
-                OnDebug($"读取运行状态异常: {ex.Message}");
-                throw new Exception($"读取运行状态失败: {ex.Message}", ex);
+                OnDebug($"读取运行状态失败: {ex.Message}");
+                throw;
             }
         }
 
         /// <summary>
         /// 设置目标温度
-        /// 地址: 0x0038, 值需乘以100
+        /// 地址: 0x0026
+        /// 正温度: 值 = 目标温度 × 10
+        /// 负温度: 值 = 65536 - (|目标温度| × 10)
         /// </summary>
         /// <param name="temperature">目标温度（℃）</param>
         public void SetTemperature(double temperature)
         {
             try
             {
-                ushort value = (ushort)(temperature * 100);
-                WriteSingleRegister(0x0038, value);
+                ushort value;
+                if (temperature >= 0)
+                {
+                    value = (ushort)(temperature * 10);
+                }
+                else
+                {
+                    value = (ushort)(65536 - (Math.Abs(temperature) * 10));
+                }
+                WriteSingleRegister(0x0026, value);
             }
             catch (Exception ex)
             {
-                throw new Exception($"设置温度失败: {ex.Message}", ex);
+                OnDebug($"设置温度失败: {ex.Message}");
+                throw;
             }
         }
 
@@ -147,14 +156,12 @@ namespace TemperatureChamber.Communication
         {
             try
             {
-                OnDebug($"启动设备，线圈地址: 0x0000");
                 WriteSingleCoil(0x0000, true);
-                OnDebug("启动设备成功");
             }
             catch (Exception ex)
             {
-                OnDebug($"启动设备异常: {ex.Message}");
-                throw new Exception($"启动设备失败: {ex.Message}", ex);
+                OnDebug($"启动设备失败: {ex.Message}");
+                throw;
             }
         }
 
@@ -166,14 +173,31 @@ namespace TemperatureChamber.Communication
         {
             try
             {
-                OnDebug($"停止设备，线圈地址: 0x0001");
                 WriteSingleCoil(0x0001, true);
-                OnDebug("停止设备成功");
             }
             catch (Exception ex)
             {
-                OnDebug($"停止设备异常: {ex.Message}");
-                throw new Exception($"停止设备失败: {ex.Message}", ex);
+                OnDebug($"停止设备失败: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 读取故障信息
+        /// 地址: 0x001B, 返回0表示无故障，1-27对应具体故障
+        /// </summary>
+        /// <returns>故障代码</returns>
+        public ushort ReadFaultInfo()
+        {
+            try
+            {
+                ushort[] registers = ReadHoldingRegisters(0x001B, 1);
+                return registers[0];
+            }
+            catch (Exception ex)
+            {
+                OnDebug($"读取故障信息失败: {ex.Message}");
+                throw;
             }
         }
 
@@ -285,10 +309,6 @@ namespace TemperatureChamber.Communication
 
             _serialPort.DiscardInBuffer();
             _serialPort.DiscardOutBuffer();
-
-            string hexString = BitConverter.ToString(request).Replace("-", " ");
-            OnDebug($"发送请求帧: {hexString}");
-
             _serialPort.Write(request, 0, request.Length);
         }
 
@@ -305,13 +325,10 @@ namespace TemperatureChamber.Communication
             int startTime = Environment.TickCount;
             int timeout = _config.Timeout;
 
-            OnDebug($"等待响应数据... (超时: {timeout}ms)");
-
             while (_serialPort.BytesToRead < 5)
             {
                 if (Environment.TickCount - startTime > timeout)
                 {
-                    OnDebug($"读取响应超时! 当前可读字节数: {_serialPort.BytesToRead}");
                     throw new TimeoutException("读取响应超时");
                 }
                 System.Threading.Thread.Sleep(10);
@@ -324,39 +341,22 @@ namespace TemperatureChamber.Communication
             int dataLength = byteCount;
             int remainingBytes = dataLength;
 
-            OnDebug($"读取到响应头: {BitConverter.ToString(header).Replace("-", " ")}, 字节计数: {byteCount}, 还需读取: {remainingBytes} 字节 (数据:{dataLength})");
-
-            OnDebug($"等待数据中... 当前可读: {_serialPort.BytesToRead}");
             while (_serialPort.BytesToRead < remainingBytes)
             {
                 if (Environment.TickCount - startTime > timeout)
                 {
-                    OnDebug($"读取响应数据超时! 已读取: 5, 还需要: {remainingBytes}, 当前可读: {_serialPort.BytesToRead}");
                     throw new TimeoutException("读取响应超时");
                 }
                 System.Threading.Thread.Sleep(10);
-                if (_serialPort.BytesToRead >= remainingBytes)
-                {
-                    OnDebug($"数据到达! 当前可读: {_serialPort.BytesToRead}");
-                    break;
-                }
             }
 
-            OnDebug($"开始读取 {byteCount} 字节数据...");
             byte[] data = new byte[byteCount];
             _serialPort.Read(data, 0, byteCount);
-            OnDebug($"数据内容: {BitConverter.ToString(data).Replace("-", " ")}");
-
-            OnDebug("跳过CRC读取（设备不返回CRC）");
 
             int actualResponseLength = 5 + byteCount;
             byte[] response = new byte[actualResponseLength];
             Array.Copy(header, 0, response, 0, 5);
             Array.Copy(data, 0, response, 5, byteCount);
-
-            OnDebug($"接收响应帧: {BitConverter.ToString(response).Replace("-", " ")}");
-
-            OnDebug("跳过CRC校验（设备不返回CRC）");
 
             return response;
         }

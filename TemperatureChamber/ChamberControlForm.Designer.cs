@@ -34,6 +34,8 @@ namespace TemperatureChamber
             btnStartChamber = new Button();
             btnRefreshStatus = new Button();
             gbChamberStatus = new GroupBox();
+            lblFaultValue = new Label();
+            lblFaultInfo = new Label();
             lblRunningStatus = new Label();
             pbRunningStatus = new Panel();
             label6 = new Label();
@@ -54,7 +56,7 @@ namespace TemperatureChamber
             menuStrip1.Items.AddRange(new ToolStripItem[] { 常温测试ToolStripMenuItem, 校准ToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1248, 28);
+            menuStrip1.Size = new Size(1028, 28);
             menuStrip1.TabIndex = 6;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -84,17 +86,17 @@ namespace TemperatureChamber
             gbChamberConnection.Margin = new Padding(4, 5, 4, 5);
             gbChamberConnection.Name = "gbChamberConnection";
             gbChamberConnection.Padding = new Padding(4, 5, 4, 5);
-            gbChamberConnection.Size = new Size(600, 173);
+            gbChamberConnection.Size = new Size(545, 173);
             gbChamberConnection.TabIndex = 0;
             gbChamberConnection.TabStop = false;
             gbChamberConnection.Text = "温箱连接";
             // 
             // btnChamberSettings
             // 
-            btnChamberSettings.Location = new Point(392, 103);
+            btnChamberSettings.Location = new Point(350, 100);
             btnChamberSettings.Margin = new Padding(4, 5, 4, 5);
             btnChamberSettings.Name = "btnChamberSettings";
-            btnChamberSettings.Size = new Size(180, 50);
+            btnChamberSettings.Size = new Size(165, 50);
             btnChamberSettings.TabIndex = 5;
             btnChamberSettings.Text = "参数配置";
             btnChamberSettings.UseVisualStyleBackColor = true;
@@ -102,7 +104,7 @@ namespace TemperatureChamber
             // 
             // btnTestChamberConnection
             // 
-            btnTestChamberConnection.Location = new Point(204, 103);
+            btnTestChamberConnection.Location = new Point(162, 100);
             btnTestChamberConnection.Margin = new Padding(4, 5, 4, 5);
             btnTestChamberConnection.Name = "btnTestChamberConnection";
             btnTestChamberConnection.Size = new Size(165, 50);
@@ -113,10 +115,10 @@ namespace TemperatureChamber
             // 
             // btnDisconnectChamber
             // 
-            btnDisconnectChamber.Location = new Point(392, 33);
+            btnDisconnectChamber.Location = new Point(350, 30);
             btnDisconnectChamber.Margin = new Padding(4, 5, 4, 5);
             btnDisconnectChamber.Name = "btnDisconnectChamber";
-            btnDisconnectChamber.Size = new Size(180, 50);
+            btnDisconnectChamber.Size = new Size(165, 50);
             btnDisconnectChamber.TabIndex = 3;
             btnDisconnectChamber.Text = "断开设备";
             btnDisconnectChamber.UseVisualStyleBackColor = true;
@@ -124,7 +126,7 @@ namespace TemperatureChamber
             // 
             // btnConnectChamber
             // 
-            btnConnectChamber.Location = new Point(204, 33);
+            btnConnectChamber.Location = new Point(162, 30);
             btnConnectChamber.Margin = new Padding(4, 5, 4, 5);
             btnConnectChamber.Name = "btnConnectChamber";
             btnConnectChamber.Size = new Size(165, 50);
@@ -136,7 +138,7 @@ namespace TemperatureChamber
             // lblChamberStatus
             // 
             lblChamberStatus.AutoSize = true;
-            lblChamberStatus.Location = new Point(101, 48);
+            lblChamberStatus.Location = new Point(50, 100);
             lblChamberStatus.Margin = new Padding(4, 0, 4, 0);
             lblChamberStatus.Name = "lblChamberStatus";
             lblChamberStatus.Size = new Size(54, 20);
@@ -145,7 +147,7 @@ namespace TemperatureChamber
             // 
             // pbChamberStatus
             // 
-            pbChamberStatus.Location = new Point(50, 40);
+            pbChamberStatus.Location = new Point(63, 62);
             pbChamberStatus.Margin = new Padding(4, 5, 4, 5);
             pbChamberStatus.Name = "pbChamberStatus";
             pbChamberStatus.Size = new Size(30, 33);
@@ -156,21 +158,21 @@ namespace TemperatureChamber
             gbTemperatureControl.Controls.Add(btnSetTemperature);
             gbTemperatureControl.Controls.Add(nudTargetTemperature);
             gbTemperatureControl.Controls.Add(label2);
-            gbTemperatureControl.Location = new Point(18, 216);
+            gbTemperatureControl.Location = new Point(18, 362);
             gbTemperatureControl.Margin = new Padding(4, 5, 4, 5);
             gbTemperatureControl.Name = "gbTemperatureControl";
             gbTemperatureControl.Padding = new Padding(4, 5, 4, 5);
-            gbTemperatureControl.Size = new Size(288, 150);
+            gbTemperatureControl.Size = new Size(239, 150);
             gbTemperatureControl.TabIndex = 1;
             gbTemperatureControl.TabStop = false;
             gbTemperatureControl.Text = "温度控制";
             // 
             // btnSetTemperature
             // 
-            btnSetTemperature.Location = new Point(15, 100);
+            btnSetTemperature.Location = new Point(15, 93);
             btnSetTemperature.Margin = new Padding(4, 5, 4, 5);
             btnSetTemperature.Name = "btnSetTemperature";
-            btnSetTemperature.Size = new Size(255, 38);
+            btnSetTemperature.Size = new Size(211, 38);
             btnSetTemperature.TabIndex = 2;
             btnSetTemperature.Text = "设置温度";
             btnSetTemperature.UseVisualStyleBackColor = true;
@@ -182,16 +184,16 @@ namespace TemperatureChamber
             nudTargetTemperature.Location = new Point(105, 42);
             nudTargetTemperature.Margin = new Padding(4, 5, 4, 5);
             nudTargetTemperature.Maximum = new decimal(new int[] { 150, 0, 0, 0 });
-            nudTargetTemperature.Minimum = new decimal(new int[] { 40, 0, 0, int.MinValue });
+            nudTargetTemperature.Minimum = new decimal(new int[] { 58, 0, 0, int.MinValue });
             nudTargetTemperature.Name = "nudTargetTemperature";
-            nudTargetTemperature.Size = new Size(165, 27);
+            nudTargetTemperature.Size = new Size(121, 27);
             nudTargetTemperature.TabIndex = 1;
             nudTargetTemperature.Value = new decimal(new int[] { 25, 0, 0, 0 });
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(22, 44);
+            label2.Location = new Point(15, 44);
             label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
             label2.Size = new Size(69, 20);
@@ -203,21 +205,21 @@ namespace TemperatureChamber
             gbChamberOperation.Controls.Add(btnStopChamber);
             gbChamberOperation.Controls.Add(btnStartChamber);
             gbChamberOperation.Controls.Add(btnRefreshStatus);
-            gbChamberOperation.Location = new Point(18, 481);
+            gbChamberOperation.Location = new Point(18, 522);
             gbChamberOperation.Margin = new Padding(4, 5, 4, 5);
             gbChamberOperation.Name = "gbChamberOperation";
             gbChamberOperation.Padding = new Padding(4, 5, 4, 5);
-            gbChamberOperation.Size = new Size(600, 121);
+            gbChamberOperation.Size = new Size(545, 105);
             gbChamberOperation.TabIndex = 3;
             gbChamberOperation.TabStop = false;
             gbChamberOperation.Text = "温箱操作";
             // 
             // btnStopChamber
             // 
-            btnStopChamber.Location = new Point(397, 34);
+            btnStopChamber.Location = new Point(365, 34);
             btnStopChamber.Margin = new Padding(4, 5, 4, 5);
             btnStopChamber.Name = "btnStopChamber";
-            btnStopChamber.Size = new Size(180, 67);
+            btnStopChamber.Size = new Size(165, 45);
             btnStopChamber.TabIndex = 2;
             btnStopChamber.Text = "停止设备";
             btnStopChamber.UseVisualStyleBackColor = true;
@@ -225,10 +227,10 @@ namespace TemperatureChamber
             // 
             // btnStartChamber
             // 
-            btnStartChamber.Location = new Point(202, 34);
+            btnStartChamber.Location = new Point(188, 34);
             btnStartChamber.Margin = new Padding(4, 5, 4, 5);
             btnStartChamber.Name = "btnStartChamber";
-            btnStartChamber.Size = new Size(180, 67);
+            btnStartChamber.Size = new Size(165, 45);
             btnStartChamber.TabIndex = 1;
             btnStartChamber.Text = "启动设备";
             btnStartChamber.UseVisualStyleBackColor = true;
@@ -236,10 +238,10 @@ namespace TemperatureChamber
             // 
             // btnRefreshStatus
             // 
-            btnRefreshStatus.Location = new Point(22, 34);
+            btnRefreshStatus.Location = new Point(15, 34);
             btnRefreshStatus.Margin = new Padding(4, 5, 4, 5);
             btnRefreshStatus.Name = "btnRefreshStatus";
-            btnRefreshStatus.Size = new Size(165, 67);
+            btnRefreshStatus.Size = new Size(165, 45);
             btnRefreshStatus.TabIndex = 0;
             btnRefreshStatus.Text = "刷新状态";
             btnRefreshStatus.UseVisualStyleBackColor = true;
@@ -247,24 +249,46 @@ namespace TemperatureChamber
             // 
             // gbChamberStatus
             // 
+            gbChamberStatus.Controls.Add(lblFaultValue);
+            gbChamberStatus.Controls.Add(lblFaultInfo);
             gbChamberStatus.Controls.Add(lblRunningStatus);
             gbChamberStatus.Controls.Add(pbRunningStatus);
             gbChamberStatus.Controls.Add(label6);
             gbChamberStatus.Controls.Add(lblTemperatureValue);
             gbChamberStatus.Controls.Add(label3);
-            gbChamberStatus.Location = new Point(18, 389);
+            gbChamberStatus.Location = new Point(18, 216);
             gbChamberStatus.Margin = new Padding(4, 5, 4, 5);
             gbChamberStatus.Name = "gbChamberStatus";
             gbChamberStatus.Padding = new Padding(4, 5, 4, 5);
-            gbChamberStatus.Size = new Size(600, 82);
+            gbChamberStatus.Size = new Size(545, 136);
             gbChamberStatus.TabIndex = 4;
             gbChamberStatus.TabStop = false;
             gbChamberStatus.Text = "温箱状态";
             // 
+            // lblFaultValue
+            // 
+            lblFaultValue.AutoSize = true;
+            lblFaultValue.Location = new Point(365, 90);
+            lblFaultValue.Margin = new Padding(4, 0, 4, 0);
+            lblFaultValue.Name = "lblFaultValue";
+            lblFaultValue.Size = new Size(54, 20);
+            lblFaultValue.TabIndex = 9;
+            lblFaultValue.Text = "无故障";
+            // 
+            // lblFaultInfo
+            // 
+            lblFaultInfo.AutoSize = true;
+            lblFaultInfo.Location = new Point(230, 90);
+            lblFaultInfo.Margin = new Padding(4, 0, 4, 0);
+            lblFaultInfo.Name = "lblFaultInfo";
+            lblFaultInfo.Size = new Size(69, 20);
+            lblFaultInfo.TabIndex = 8;
+            lblFaultInfo.Text = "故障信息";
+            // 
             // lblRunningStatus
             // 
             lblRunningStatus.AutoSize = true;
-            lblRunningStatus.Location = new Point(403, 33);
+            lblRunningStatus.Location = new Point(365, 48);
             lblRunningStatus.Margin = new Padding(4, 0, 4, 0);
             lblRunningStatus.Name = "lblRunningStatus";
             lblRunningStatus.Size = new Size(54, 20);
@@ -273,7 +297,7 @@ namespace TemperatureChamber
             // 
             // pbRunningStatus
             // 
-            pbRunningStatus.Location = new Point(358, 24);
+            pbRunningStatus.Location = new Point(320, 39);
             pbRunningStatus.Margin = new Padding(4, 5, 4, 5);
             pbRunningStatus.Name = "pbRunningStatus";
             pbRunningStatus.Size = new Size(30, 33);
@@ -282,7 +306,7 @@ namespace TemperatureChamber
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(268, 33);
+            label6.Location = new Point(230, 48);
             label6.Margin = new Padding(4, 0, 4, 0);
             label6.Name = "label6";
             label6.Size = new Size(69, 20);
@@ -292,7 +316,7 @@ namespace TemperatureChamber
             // lblTemperatureValue
             // 
             lblTemperatureValue.AutoSize = true;
-            lblTemperatureValue.Location = new Point(178, 33);
+            lblTemperatureValue.Location = new Point(140, 48);
             lblTemperatureValue.Margin = new Padding(4, 0, 4, 0);
             lblTemperatureValue.Name = "lblTemperatureValue";
             lblTemperatureValue.Size = new Size(36, 20);
@@ -302,7 +326,7 @@ namespace TemperatureChamber
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(88, 33);
+            label3.Location = new Point(50, 48);
             label3.Margin = new Padding(4, 0, 4, 0);
             label3.Name = "label3";
             label3.Size = new Size(69, 20);
@@ -311,24 +335,24 @@ namespace TemperatureChamber
             // 
             // txtTestLog
             // 
-            txtTestLog.Location = new Point(630, 20);
+            txtTestLog.Location = new Point(571, 33);
             txtTestLog.Margin = new Padding(4, 5, 4, 5);
             txtTestLog.Multiline = true;
             txtTestLog.Name = "txtTestLog";
             txtTestLog.ScrollBars = ScrollBars.Vertical;
-            txtTestLog.Size = new Size(598, 746);
+            txtTestLog.Size = new Size(448, 594);
             txtTestLog.TabIndex = 5;
             // 
             // ChamberControlForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1248, 773);
+            ClientSize = new Size(1028, 634);
             Controls.Add(menuStrip1);
             Controls.Add(txtTestLog);
             Controls.Add(gbChamberStatus);
-            Controls.Add(gbChamberOperation);
             Controls.Add(gbTemperatureControl);
+            Controls.Add(gbChamberOperation);
             Controls.Add(gbChamberConnection);
             Margin = new Padding(4, 5, 4, 5);
             Name = "ChamberControlForm";
@@ -367,6 +391,8 @@ namespace TemperatureChamber
         private System.Windows.Forms.Button btnStartChamber;
         private System.Windows.Forms.Button btnRefreshStatus;
         private System.Windows.Forms.GroupBox gbChamberStatus;
+        private System.Windows.Forms.Label lblFaultValue;
+        private System.Windows.Forms.Label lblFaultInfo;
         private System.Windows.Forms.Label lblRunningStatus;
         private System.Windows.Forms.Panel pbRunningStatus;
         private System.Windows.Forms.Label label6;

@@ -17,8 +17,11 @@ namespace TemperatureChamber.Communication
         public const ushort REGISTER_TEMPERATURE = 0x0000;
         public const ushort REGISTER_HUMIDITY = 0x0003;
         public const ushort REGISTER_RUNNING_STATUS = 0x0024;
-        public const ushort REGISTER_SET_TEMPERATURE = 0x0038;
+        public const ushort REGISTER_SET_TEMPERATURE = 0x0026;
         public const ushort REGISTER_SET_HUMIDITY = 0x0039;
+        public const ushort REGISTER_TEMP_SETPOINT = 0x0001;
+        public const ushort REGISTER_WORK_MODE = 0x0019;
+        public const ushort REGISTER_FAULT_INFO = 0x001B;
         
         // 线圈地址
         public const ushort COIL_START = 0x0000;

@@ -199,8 +199,8 @@ namespace TemperatureChamber
         /// 读取设备运行状态
         /// 推荐用于测试连通性
         /// </summary>
-        /// <returns>运行状态值</returns>
-        public ushort ReadDeviceStatus()
+        /// <returns>运行状态 true=运行中, false=停止</returns>
+        public bool ReadDeviceStatus()
         {
             if (!IsConnected)
             {
@@ -209,9 +209,9 @@ namespace TemperatureChamber
 
             try
             {
-                ushort status = _modbus.ReadDeviceStatus();
-                Console.WriteLine($"设备运行状态: {status}");
-                return status;
+                bool isRunning = _modbus.ReadDeviceStatus();
+                Console.WriteLine($"设备运行状态: {(isRunning ? "运行中" : "停止")}");
+                return isRunning;
             }
             catch (Exception ex)
             {
@@ -235,6 +235,30 @@ namespace TemperatureChamber
         {
             Console.WriteLine($"[错误] {errorMessage}");
             ErrorOccurred?.Invoke(this, errorMessage);
+        }
+
+        /// <summary>
+        /// 读取故障信息
+        /// </summary>
+        /// <returns>故障代码，0表示无故障</returns>
+        public ushort ReadFaultInfo()
+        {
+            if (!IsConnected)
+            {
+                throw new InvalidOperationException("设备未连接");
+            }
+
+            try
+            {
+                ushort faultInfo = _modbus.ReadFaultInfo();
+                Console.WriteLine($"故障信息: {faultInfo}");
+                return faultInfo;
+            }
+            catch (Exception ex)
+            {
+                OnErrorOccurred($"读取故障信息失败: {ex.Message}");
+                throw;
+            }
         }
 
         /// <summary>

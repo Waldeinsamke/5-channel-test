@@ -11,6 +11,7 @@ namespace TemperatureChamber
         private ChamberController? _chamberController;
         private ChamberConfig? _chamberConfig;
         private Form? _mainForm;
+        private System.Windows.Forms.Timer? _statusPollingTimer;
 
         public ChamberControlForm(Form? mainForm = null)
         {
@@ -26,6 +27,10 @@ namespace TemperatureChamber
         /// </summary>
         private void InitializeChamberControl()
         {
+            _statusPollingTimer = new System.Windows.Forms.Timer();
+            _statusPollingTimer.Interval = 2000;
+            _statusPollingTimer.Tick += StatusPollingTimer_Tick;
+
             _chamberConfig = new ChamberConfig
             {
                 PortName = "COM4",
@@ -35,7 +40,7 @@ namespace TemperatureChamber
                 StopBits = System.IO.Ports.StopBits.One,
                 SlaveId = 1,
                 Timeout = 10000,
-                MinTemperature = -40,
+                MinTemperature = -58,
                 MaxTemperature = 150
             };
 
@@ -56,6 +61,75 @@ namespace TemperatureChamber
                 string message = isConnected ? "温箱设备已连接" : "温箱设备已断开";
                 txtTestLog.AppendText($"[{DateTime.Now:HH:mm:ss}] {message}\r\n");
                 txtTestLog.ScrollToCaret();
+            }
+
+            if (isConnected)
+            {
+                _statusPollingTimer?.Start();
+                ReadChamberStatus();
+            }
+            else
+            {
+                _statusPollingTimer?.Stop();
+                if (lblTemperatureValue != null)
+                {
+                    lblTemperatureValue.Text = "--℃";
+                }
+                if (lblRunningStatus != null)
+                {
+                    lblRunningStatus.Text = "未运行";
+                    lblRunningStatus.ForeColor = Color.Red;
+                }
+                if (pbRunningStatus != null)
+                {
+                    pbRunningStatus.BackColor = Color.Red;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 定时读取温箱状态
+        /// </summary>
+        private void StatusPollingTimer_Tick(object? sender, EventArgs e)
+        {
+            ReadChamberStatus();
+        }
+
+        /// <summary>
+        /// 读取温箱状态（温度和运行状态）
+        /// </summary>
+        private void ReadChamberStatus()
+        {
+            if (_chamberController == null || !_chamberController.IsConnected)
+            {
+                return;
+            }
+
+            try
+            {
+                double temperature = _chamberController.ReadTemperature();
+                bool isRunning = _chamberController.ReadDeviceStatus();
+
+                if (lblTemperatureValue != null)
+                {
+                    lblTemperatureValue.Text = $"{temperature:F1}℃";
+                }
+
+                if (lblRunningStatus != null)
+                {
+                    lblRunningStatus.Text = isRunning ? "运行中" : "未运行";
+                    lblRunningStatus.ForeColor = isRunning ? Color.Green : Color.Red;
+                }
+
+                if (pbRunningStatus != null)
+                {
+                    pbRunningStatus.BackColor = isRunning ? Color.Green : Color.Red;
+                }
+            }
+            catch (Exception ex)
+            {
+                txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 读取状态错误：{ex.Message}\r\n");
+                txtTestLog?.ScrollToCaret();
             }
         }
 
@@ -198,8 +272,8 @@ namespace TemperatureChamber
                         txtTestLog?.ScrollToCaret();
 
                         // 读取运行状态测试连通性
-                        ushort status = _chamberController.ReadDeviceStatus();
-                        txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 运行状态: {status}\r\n");
+                        bool isRunning = _chamberController.ReadDeviceStatus();
+                        txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 运行状态: {(isRunning ? "运行中" : "停止")}\r\n");
                         txtTestLog?.ScrollToCaret();
 
                         double temperature = _chamberController.ReadTemperature();
@@ -207,7 +281,7 @@ namespace TemperatureChamber
                         txtTestLog?.ScrollToCaret();
 
                         UpdateChamberStatusUI(true);
-                        MessageBox.Show("温箱设备连接测试成功！\n\n运行状态: " + status + "\n当前温度：" + temperature.ToString("F1") + "℃", "测试成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("温箱设备连接测试成功！\n\n运行状态: " + (isRunning ? "运行中" : "停止") + "\n当前温度：" + temperature.ToString("F1") + "℃", "测试成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
@@ -220,15 +294,15 @@ namespace TemperatureChamber
                 else
                 {
                     // 读取运行状态测试连通性
-                    ushort status = _chamberController.ReadDeviceStatus();
-                    txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 运行状态: {status}\r\n");
+                    bool isRunning = _chamberController.ReadDeviceStatus();
+                    txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 运行状态: {(isRunning ? "运行中" : "停止")}\r\n");
                     txtTestLog?.ScrollToCaret();
 
                     double temperature = _chamberController.ReadTemperature();
                     txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 当前温度：{temperature:F1}℃\r\n");
                     txtTestLog?.ScrollToCaret();
 
-                    MessageBox.Show("温箱设备连接测试成功！\n\n运行状态: " + status + "\n当前温度：" + temperature.ToString("F1") + "℃", "测试成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("温箱设备连接测试成功！\n\n运行状态: " + (isRunning ? "运行中" : "停止") + "\n当前温度：" + temperature.ToString("F1") + "℃", "测试成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
@@ -325,6 +399,16 @@ namespace TemperatureChamber
                 double temperature = _chamberController.ReadTemperature();
                 txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 当前温度：{temperature:F1}℃\r\n");
                 txtTestLog?.ScrollToCaret();
+
+                ushort faultInfo = _chamberController.ReadFaultInfo();
+                string faultText = GetFaultDescription(faultInfo);
+                if (lblFaultValue != null)
+                {
+                    lblFaultValue.Text = faultText;
+                    lblFaultValue.ForeColor = faultInfo == 0 ? Color.Green : Color.Red;
+                }
+                txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 故障信息：{faultInfo} - {faultText}\r\n");
+                txtTestLog?.ScrollToCaret();
             }
             catch (Exception ex)
             {
@@ -332,6 +416,25 @@ namespace TemperatureChamber
                 txtTestLog?.ScrollToCaret();
                 MessageBox.Show($"刷新状态失败：{ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// 获取故障描述
+        /// </summary>
+        private string GetFaultDescription(ushort faultCode)
+        {
+            return faultCode switch
+            {
+                0 => "无故障",
+                1 => "CM1压缩机过流保护跳脱",
+                2 => "CM1压缩机超压保护跳脱",
+                3 => "CM1压缩机油压异常",
+                17 => "电源欠相或逆相",
+                25 => "温度传感器错误",
+                26 => "湿度传感器错误",
+                27 => "箱内温度超限异常",
+                _ => $"故障代码:{faultCode}"
+            };
         }
 
         /// <summary>
@@ -474,6 +577,9 @@ namespace TemperatureChamber
 
         private void ChamberControlForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            _statusPollingTimer?.Stop();
+            _statusPollingTimer?.Dispose();
+
             if (_chamberController != null)
             {
                 _chamberController.Disconnect();

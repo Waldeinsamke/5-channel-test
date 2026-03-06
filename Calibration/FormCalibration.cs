@@ -62,6 +62,9 @@ namespace 五通道自动测试.Calibration
         private TemperaturePhaseVerificationService? _tempPhaseService;
         private bool _isTempPhaseRunning = false;
 
+        public ChamberController? ChamberController => _chamberController;
+        public float CurrentTemperature => _currentTemperature;
+
         #endregion
 
         /// <summary>
@@ -199,6 +202,8 @@ namespace 五通道自动测试.Calibration
             _tempPhaseService = new TemperaturePhaseVerificationService(
                 _instrumentManager,
                 _chamberController,
+                this,
+                () => (double)_currentTemperature,
                 LogMessage,
                 UpdateTempPhaseProgress,
                 OnTempPhasePowerStateChanged);

@@ -1146,7 +1146,8 @@ namespace 五通道自动测试
             }
             else
             {
-                _chamberControlForm = new ChamberControlForm(this);
+                var chamberController = _calibrationForm?.ChamberController;
+                _chamberControlForm = new ChamberControlForm(chamberController, this);
                 _chamberControlForm.FormClosed += ChamberControlForm_FormClosed;
                 _chamberControlForm.Show();
             }
@@ -1237,7 +1238,8 @@ namespace 五通道自动测试
             }
             else
             {
-                _chamberControlForm = new ChamberControlForm(this);
+                var chamberController = _calibrationForm?.ChamberController;
+                _chamberControlForm = new ChamberControlForm(chamberController, this);
                 _chamberControlForm.FormClosed += ChamberControlForm_FormClosed;
                 _chamberControlForm.Show();
             }

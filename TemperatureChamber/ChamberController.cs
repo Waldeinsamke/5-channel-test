@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using TemperatureChamber.Communication;
 using TemperatureChamber.Models;
 
@@ -12,6 +14,10 @@ namespace TemperatureChamber
     {
         private SimpleModbusMaster _modbus;
         private ChamberConfig _config;
+        private CancellationTokenSource? _pollingCts;
+        private Task? _pollingTask;
+        private DeviceStatus? _lastStatus;
+        private readonly object _statusLock = new object();
 
         /// <summary>
         /// 设备是否连接
@@ -69,6 +75,7 @@ namespace TemperatureChamber
                 _modbus.Debug += OnModbusDebug;
                 _modbus.Open();
                 OnConnectionChanged(true);
+                StartPolling();
                 Console.WriteLine($"成功连接到温箱设备，串口: {_config.PortName}, 从站地址: {_config.SlaveId}");
                 return true;
             }
@@ -86,6 +93,7 @@ namespace TemperatureChamber
         {
             try
             {
+                StopPolling();
                 _modbus?.Close();
                 _modbus?.Dispose();
                 _modbus = null;
@@ -221,6 +229,37 @@ namespace TemperatureChamber
         }
 
         /// <summary>
+        /// 内部方法：读取温箱状态
+        /// </summary>
+        private DeviceStatus ReadStatusInternal()
+        {
+            double temperature = 0;
+            bool isRunning = false;
+
+            try
+            {
+                temperature = _modbus.ReadTemperature();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                isRunning = _modbus.ReadDeviceStatus();
+            }
+            catch
+            {
+            }
+
+            return new DeviceStatus
+            {
+                Temperature = temperature,
+                IsRunning = isRunning
+            };
+        }
+
+        /// <summary>
         /// 触发连接状态变化事件
         /// </summary>
         protected virtual void OnConnectionChanged(bool isConnected)
@@ -275,6 +314,70 @@ namespace TemperatureChamber
         private void OnModbusDebug(object? sender, string message)
         {
             Debug?.Invoke(this, message);
+        }
+
+        /// <summary>
+        /// 启动状态轮询
+        /// </summary>
+        private void StartPolling()
+        {
+            if (_pollingTask != null && !_pollingTask.IsCompleted)
+                return;
+
+            _pollingCts = new CancellationTokenSource();
+            _pollingTask = Task.Run(async () =>
+            {
+                while (!_pollingCts.Token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        if (_modbus?.IsConnected == true)
+                        {
+                            var status = ReadStatusInternal();
+                            bool shouldNotify = false;
+
+                            lock (_statusLock)
+                            {
+                                if (_lastStatus == null ||
+                                    Math.Abs(_lastStatus.Temperature - status.Temperature) > 0.1 ||
+                                    _lastStatus.IsRunning != status.IsRunning)
+                                {
+                                    _lastStatus = status;
+                                    shouldNotify = true;
+                                }
+                            }
+
+                            if (shouldNotify)
+                            {
+                                OnStatusUpdated(status);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    await Task.Delay(1000, _pollingCts.Token);
+                }
+            }, _pollingCts.Token);
+        }
+
+        /// <summary>
+        /// 停止状态轮询
+        /// </summary>
+        private void StopPolling()
+        {
+            _pollingCts?.Cancel();
+            try
+            {
+                _pollingTask?.Wait(1000);
+            }
+            catch
+            {
+            }
+            _pollingCts?.Dispose();
+            _pollingCts = null;
+            _pollingTask = null;
         }
 
         /// <summary>

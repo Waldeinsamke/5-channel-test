@@ -367,6 +367,10 @@ namespace TemperatureChamber.Communication
         private ushort[] ParseReadHoldingRegistersResponse(byte[] response, ushort numberOfPoints)
         {
             int byteCount = response[2];
+            if (byteCount == 0)
+            {
+                throw new Exception($"温箱响应数据为空，请检查温箱设备连接状态");
+            }
             if (byteCount != numberOfPoints * 2)
             {
                 throw new Exception($"字节数不匹配: 期望{numberOfPoints * 2}, 实际{byteCount}");

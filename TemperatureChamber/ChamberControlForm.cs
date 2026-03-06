@@ -13,6 +13,8 @@ namespace TemperatureChamber
         private Form? _mainForm;
         private System.Windows.Forms.Timer? _statusPollingTimer;
 
+        public ChamberController? ChamberController => _chamberController;
+
         public ChamberControlForm(Form? mainForm = null)
         {
             _mainForm = mainForm;
@@ -20,6 +22,28 @@ namespace TemperatureChamber
             MaximizeBox = false;
             FormBorderStyle = FormBorderStyle.FixedSingle;
             InitializeChamberControl();
+        }
+
+        public ChamberControlForm(ChamberController? existingController, Form? mainForm = null)
+        {
+            _mainForm = mainForm;
+            InitializeComponent();
+            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+
+            if (existingController != null)
+            {
+                _chamberController = existingController;
+                _chamberController.ConnectionChanged += OnChamberConnectionChanged;
+                _chamberController.ErrorOccurred += OnChamberErrorOccurred;
+                _chamberController.StatusUpdated += OnChamberStatusUpdated;
+                _chamberController.Debug += OnChamberDebug;
+                UpdateChamberStatusUI(_chamberController.IsConnected);
+            }
+            else
+            {
+                InitializeChamberControl();
+            }
         }
 
         /// <summary>

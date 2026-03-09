@@ -195,7 +195,7 @@ namespace 五通道自动测试.Calibration
             {
                 _chamberConfig = new ChamberConfig
                 {
-                    PortName = "COM4",
+                    PortName = GetChamberPortFromConfig(),
                     BaudRate = 38400,
                     DataBits = 8,
                     Parity = System.IO.Ports.Parity.Even,
@@ -218,6 +218,26 @@ namespace 五通道自动测试.Calibration
                 UpdateTempPhaseProgress,
                 OnTempPhasePowerStateChanged,
                 AddCalibrationResult);
+        }
+
+        private string GetChamberPortFromConfig()
+        {
+            if (_mainForm?.InstrumentConfig?.SerialPorts?.Chamber != null &&
+                !string.IsNullOrEmpty(_mainForm.InstrumentConfig.SerialPorts.Chamber.PortName))
+            {
+                return _mainForm.InstrumentConfig.SerialPorts.Chamber.PortName;
+            }
+            return "COM4";
+        }
+
+        private string GetTemperatureSensorPortFromConfig()
+        {
+            if (_mainForm?.InstrumentConfig?.SerialPorts?.TemperatureSensor != null &&
+                !string.IsNullOrEmpty(_mainForm.InstrumentConfig.SerialPorts.TemperatureSensor.PortName))
+            {
+                return _mainForm.InstrumentConfig.SerialPorts.TemperatureSensor.PortName;
+            }
+            return "COM9";
         }
 
         private void InitializeTempPhaseControls()
@@ -632,8 +652,8 @@ namespace 五通道自动测试.Calibration
 
             // 初始化温度串口下拉菜单
             TempSerialPort.Items.AddRange(SerialPort.GetPortNames());
-            // 查找并选择特定串口（例如 COM9）
-            int targetPortIndex = TempSerialPort.Items.IndexOf("COM9");
+            string tempSensorPort = GetTemperatureSensorPortFromConfig();
+            int targetPortIndex = TempSerialPort.Items.IndexOf(tempSensorPort);
             if (targetPortIndex >= 0)
             {
                 TempSerialPort.SelectedIndex = targetPortIndex;

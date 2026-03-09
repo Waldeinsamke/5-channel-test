@@ -6,6 +6,30 @@ namespace 五通道自动测试.Config
     {
         [JsonPropertyName("Instruments")]
         public InstrumentsConfig Instruments { get; set; } = new();
+
+        [JsonPropertyName("SerialPorts")]
+        public SerialPortsConfig SerialPorts { get; set; } = new();
+    }
+
+    public class SerialPortsConfig
+    {
+        [JsonPropertyName("Chamber")]
+        public SerialPortConfig Chamber { get; set; } = new();
+
+        [JsonPropertyName("TemperatureSensor")]
+        public SerialPortConfig TemperatureSensor { get; set; } = new();
+
+        [JsonPropertyName("ToolingBoard")]
+        public SerialPortConfig ToolingBoard { get; set; } = new();
+    }
+
+    public class SerialPortConfig
+    {
+        [JsonPropertyName("PortName")]
+        public string PortName { get; set; } = string.Empty;
+
+        [JsonPropertyName("Name")]
+        public string Name { get; set; } = string.Empty;
     }
 
     public class InstrumentsConfig

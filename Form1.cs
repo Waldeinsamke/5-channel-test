@@ -25,6 +25,8 @@ namespace 五通道自动测试
         private bool _isPowerOn = false;
         private InstrumentConfig? _instrumentConfig;
 
+        public InstrumentConfig? InstrumentConfig => _instrumentConfig;
+
         public Form1(InstrumentManager instrumentManager)
         {
             _instrumentManager = instrumentManager;
@@ -217,15 +219,15 @@ namespace 五通道自动测试
         }
 
         /// <summary>
-        /// 自动连接工装板（COM3）
+        /// 自动连接工装板
         /// </summary>
         private void AutoConnectToolingBoard()
         {
-            const string defaultPort = "COM3";
+            string portName = GetToolingBoardPortFromConfig();
 
             if (_toolingBoard == null)
             {
-                _toolingBoard = new ToolingBoardCommunicator(defaultPort);
+                _toolingBoard = new ToolingBoardCommunicator(portName);
                 _toolingBoard.LogMessage += OnBoardLogMessage;
                 _toolingBoard.CommunicationStatusChanged += OnBoardStatusChanged;
             }
@@ -239,7 +241,7 @@ namespace 五通道自动测试
                 }
                 if (txtTestLog != null)
                 {
-                    txtTestLog.AppendText($"[{DateTime.Now:HH:mm:ss}] 工装板自动连接成功：{defaultPort}\r\n");
+                    txtTestLog.AppendText($"[{DateTime.Now:HH:mm:ss}] 工装板自动连接成功：{portName}\r\n");
                     txtTestLog.ScrollToCaret();
                 }
 
@@ -258,10 +260,23 @@ namespace 五通道自动测试
                 }
                 if (txtTestLog != null)
                 {
-                    txtTestLog.AppendText($"[{DateTime.Now:HH:mm:ss}] 工装板自动连接失败：{defaultPort}\r\n");
+                    txtTestLog.AppendText($"[{DateTime.Now:HH:mm:ss}] 工装板自动连接失败：{portName}\r\n");
                     txtTestLog.ScrollToCaret();
                 }
             }
+        }
+
+        /// <summary>
+        /// 从配置获取工装板串口号
+        /// </summary>
+        private string GetToolingBoardPortFromConfig()
+        {
+            if (_instrumentConfig?.SerialPorts?.ToolingBoard != null &&
+                !string.IsNullOrEmpty(_instrumentConfig.SerialPorts.ToolingBoard.PortName))
+            {
+                return _instrumentConfig.SerialPorts.ToolingBoard.PortName;
+            }
+            return "COM3";
         }
 
         /// <summary>

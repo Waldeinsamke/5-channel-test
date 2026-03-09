@@ -16,6 +16,7 @@ namespace 五通道自动测试
         private TestManager? _testManager;
         private bool _isChamberMode = false;
         private ChamberControlForm? _chamberControlForm;
+        public ChamberControlForm? ChamberControlForm => _chamberControlForm;
 
         private int _currentChannel = 0;
         private ToolingBoardCommunicator? _toolingBoard;

@@ -1,5 +1,6 @@
 using System;
 using System.IO.Ports;
+using System.Threading;
 using TemperatureChamber.Models;
 
 namespace TemperatureChamber.Communication
@@ -13,6 +14,7 @@ namespace TemperatureChamber.Communication
         private SerialPort _serialPort;
         private ChamberConfig _config;
         private bool _isDisposed = false;
+        private readonly object _lock = new object();
 
         /// <summary>
         /// 设备是否连接
@@ -302,14 +304,17 @@ namespace TemperatureChamber.Communication
         /// </summary>
         private void SendRequest(byte[] request)
         {
-            if (!_serialPort.IsOpen)
+            lock (_lock)
             {
-                throw new InvalidOperationException("串口未连接");
-            }
+                if (!_serialPort.IsOpen)
+                {
+                    throw new InvalidOperationException("串口未连接");
+                }
 
-            _serialPort.DiscardInBuffer();
-            _serialPort.DiscardOutBuffer();
-            _serialPort.Write(request, 0, request.Length);
+                _serialPort.DiscardInBuffer();
+                _serialPort.DiscardOutBuffer();
+                _serialPort.Write(request, 0, request.Length);
+            }
         }
 
         /// <summary>
@@ -317,48 +322,51 @@ namespace TemperatureChamber.Communication
         /// </summary>
         private byte[] ReadResponse()
         {
-            if (!_serialPort.IsOpen)
+            lock (_lock)
             {
-                throw new InvalidOperationException("串口未连接");
-            }
-
-            int startTime = Environment.TickCount;
-            int timeout = _config.Timeout;
-
-            while (_serialPort.BytesToRead < 5)
-            {
-                if (Environment.TickCount - startTime > timeout)
+                if (!_serialPort.IsOpen)
                 {
-                    throw new TimeoutException("读取响应超时");
+                    throw new InvalidOperationException("串口未连接");
                 }
-                System.Threading.Thread.Sleep(10);
-            }
 
-            byte[] header = new byte[5];
-            _serialPort.Read(header, 0, 5);
+                int startTime = Environment.TickCount;
+                int timeout = _config.Timeout;
 
-            byte byteCount = header[2];
-            int dataLength = byteCount;
-            int remainingBytes = dataLength;
-
-            while (_serialPort.BytesToRead < remainingBytes)
-            {
-                if (Environment.TickCount - startTime > timeout)
+                while (_serialPort.BytesToRead < 5)
                 {
-                    throw new TimeoutException("读取响应超时");
+                    if (Environment.TickCount - startTime > timeout)
+                    {
+                        throw new TimeoutException("读取响应超时");
+                    }
+                    System.Threading.Thread.Sleep(10);
                 }
-                System.Threading.Thread.Sleep(10);
+
+                byte[] header = new byte[5];
+                _serialPort.Read(header, 0, 5);
+
+                byte byteCount = header[2];
+                int dataLength = byteCount;
+                int remainingBytes = dataLength;
+
+                while (_serialPort.BytesToRead < remainingBytes)
+                {
+                    if (Environment.TickCount - startTime > timeout)
+                    {
+                        throw new TimeoutException("读取响应超时");
+                    }
+                    System.Threading.Thread.Sleep(10);
+                }
+
+                byte[] data = new byte[byteCount];
+                _serialPort.Read(data, 0, byteCount);
+
+                int actualResponseLength = 5 + byteCount;
+                byte[] response = new byte[actualResponseLength];
+                Array.Copy(header, 0, response, 0, 5);
+                Array.Copy(data, 0, response, 5, byteCount);
+
+                return response;
             }
-
-            byte[] data = new byte[byteCount];
-            _serialPort.Read(data, 0, byteCount);
-
-            int actualResponseLength = 5 + byteCount;
-            byte[] response = new byte[actualResponseLength];
-            Array.Copy(header, 0, response, 0, 5);
-            Array.Copy(data, 0, response, 5, byteCount);
-
-            return response;
         }
 
         /// <summary>

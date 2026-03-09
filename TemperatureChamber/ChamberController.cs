@@ -18,6 +18,8 @@ namespace TemperatureChamber
         private Task? _pollingTask;
         private DeviceStatus? _lastStatus;
         private readonly object _statusLock = new object();
+        private readonly object _operationLock = new object();
+        private bool _isPollingPaused = false;
 
         /// <summary>
         /// 设备是否连接
@@ -94,6 +96,7 @@ namespace TemperatureChamber
             try
             {
                 StopPolling();
+                Thread.Sleep(100);
                 _modbus?.Close();
                 _modbus?.Dispose();
                 _modbus = null;
@@ -117,16 +120,19 @@ namespace TemperatureChamber
                 throw new InvalidOperationException("设备未连接");
             }
 
-            try
+            lock (_operationLock)
             {
-                double temperature = _modbus.ReadTemperature();
-                Console.WriteLine($"当前温度: {temperature:F2} ℃");
-                return temperature;
-            }
-            catch (Exception ex)
-            {
-                OnErrorOccurred($"读取温度失败: {ex.Message}");
-                throw;
+                try
+                {
+                    double temperature = _modbus.ReadTemperature();
+                    Console.WriteLine($"当前温度: {temperature:F2} ℃");
+                    return temperature;
+                }
+                catch (Exception ex)
+                {
+                    OnErrorOccurred($"读取温度失败: {ex.Message}");
+                    throw;
+                }
             }
         }
 
@@ -215,16 +221,19 @@ namespace TemperatureChamber
                 throw new InvalidOperationException("设备未连接");
             }
 
-            try
+            lock (_operationLock)
             {
-                bool isRunning = _modbus.ReadDeviceStatus();
-                Console.WriteLine($"设备运行状态: {(isRunning ? "运行中" : "停止")}");
-                return isRunning;
-            }
-            catch (Exception ex)
-            {
-                OnErrorOccurred($"读取运行状态失败: {ex.Message}");
-                throw;
+                try
+                {
+                    bool isRunning = _modbus.ReadDeviceStatus();
+                    Console.WriteLine($"设备运行状态: {(isRunning ? "运行中" : "停止")}");
+                    return isRunning;
+                }
+                catch (Exception ex)
+                {
+                    OnErrorOccurred($"读取运行状态失败: {ex.Message}");
+                    throw;
+                }
             }
         }
 
@@ -236,20 +245,23 @@ namespace TemperatureChamber
             double temperature = 0;
             bool isRunning = false;
 
-            try
+            lock (_operationLock)
             {
-                temperature = _modbus.ReadTemperature();
-            }
-            catch
-            {
-            }
+                try
+                {
+                    temperature = _modbus.ReadTemperature();
+                }
+                catch
+                {
+                }
 
-            try
-            {
-                isRunning = _modbus.ReadDeviceStatus();
-            }
-            catch
-            {
+                try
+                {
+                    isRunning = _modbus.ReadDeviceStatus();
+                }
+                catch
+                {
+                }
             }
 
             return new DeviceStatus
@@ -331,7 +343,7 @@ namespace TemperatureChamber
                 {
                     try
                     {
-                        if (_modbus?.IsConnected == true)
+                        if (_modbus?.IsConnected == true && !_isPollingPaused)
                         {
                             var status = ReadStatusInternal();
                             bool shouldNotify = false;
@@ -360,6 +372,22 @@ namespace TemperatureChamber
                     await Task.Delay(1000, _pollingCts.Token);
                 }
             }, _pollingCts.Token);
+        }
+
+        /// <summary>
+        /// 暂停状态轮询
+        /// </summary>
+        public void PausePolling()
+        {
+            _isPollingPaused = true;
+        }
+
+        /// <summary>
+        /// 恢复状态轮询
+        /// </summary>
+        public void ResumePolling()
+        {
+            _isPollingPaused = false;
         }
 
         /// <summary>

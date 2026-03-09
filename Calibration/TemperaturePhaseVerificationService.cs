@@ -18,6 +18,7 @@ namespace 五通道自动测试.Calibration
         private readonly Action<string> _logCallback;
         private readonly Action<int, int, double, double> _progressCallback;
         private readonly Action<bool> _powerStateCallback;
+        private readonly Action<string, string>? _addResultCallback;
         private CancellationTokenSource? _cancellationTokenSource;
 
         private static readonly Dictionary<double, double> TemperatureMapping = new()
@@ -42,8 +43,9 @@ namespace 五通道自动测试.Calibration
 
         private static readonly double[] DefaultSequence1 = { 35, -25, -52, -25, 35, 65, 92, 65, 35 };
         private static readonly double[] DefaultSequence2 = { -52, -45, -35, -25, -15, -5, 5, 15, 25, 35, 45, 55, 65, 75, 85, 92 };
+        private static readonly double[] DefaultSequence3 = { 35, -25, -55, -25, 35, 65, 95, 65, 35 };
 
-        private const double TemperatureStabilityThreshold = 0.3;
+        private const double TemperatureStabilityThreshold = 0.2;
         private const int StabilityCheckIntervalMs = 1000;
         private const int StabilityCheckCount = 10;
         private const int CooldownWaitMinutes = 30;
@@ -64,7 +66,8 @@ namespace 五通道自动测试.Calibration
             Func<double>? getModuleTemperature,
             Action<string> logCallback,
             Action<int, int, double, double> progressCallback,
-            Action<bool> powerStateCallback)
+            Action<bool> powerStateCallback,
+            Action<string, string>? addResultCallback = null)
         {
             _instrumentManager = instrumentManager;
             _chamberController = chamberController;
@@ -73,10 +76,12 @@ namespace 五通道自动测试.Calibration
             _logCallback = logCallback;
             _progressCallback = progressCallback;
             _powerStateCallback = powerStateCallback;
+            _addResultCallback = addResultCallback;
         }
 
         public static double[] GetSequence1() => DefaultSequence1.ToArray();
         public static double[] GetSequence2() => DefaultSequence2.ToArray();
+        public static double[] GetSequence3() => DefaultSequence3.ToArray();
 
         public static double CalculateChamberTemperature(double moduleTemperature)
         {
@@ -95,7 +100,14 @@ namespace 五通道自动测试.Calibration
                 return;
             }
 
+            if (!_chamberController.IsConnected)
+            {
+                _logCallback("温箱未连接，请先在温箱控制界面连接温箱设备");
+                throw new InvalidOperationException("温箱未连接");
+            }
+
             IsRunning = true;
+            _chamberController.PausePolling();
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var linkedCts = _cancellationTokenSource;
 
@@ -113,7 +125,7 @@ namespace 五通道自动测试.Calibration
                     _progressCallback(i + 1, sequence.Length, targetModuleTemp, targetChamberTemp);
                     _logCallback($"[{i + 1}/{sequence.Length}] 开始测试：模块温度 {targetModuleTemp}℃ → 温箱设定 {targetChamberTemp}℃");
 
-                    await WaitForTemperatureStableAsync(targetModuleTemp, targetChamberTemp, linkedCts.Token);
+                    await WaitForTemperatureStableAsync(targetModuleTemp, targetChamberTemp, i == 0, linkedCts.Token);
 
                     _logCallback($"温度已稳定，开始执行相位读取...");
                     await ExecutePhaseReadingAsync(linkedCts.Token);
@@ -135,8 +147,19 @@ namespace 五通道自动测试.Calibration
             finally
             {
                 IsRunning = false;
+                _chamberController.ResumePolling();
                 _cancellationTokenSource?.Dispose();
                 _cancellationTokenSource = null;
+
+                try
+                {
+                    _chamberController.StopDevice();
+                    _logCallback("验证完成，温箱已停止运行");
+                }
+                catch (Exception ex)
+                {
+                    _logCallback($"停止温箱失败: {ex.Message}");
+                }
             }
         }
 
@@ -146,7 +169,7 @@ namespace 五通道自动测试.Calibration
             _logCallback("正在停止验证服务...");
         }
 
-        private async Task WaitForTemperatureStableAsync(double targetModuleTemp, double targetChamberTemp, CancellationToken cancellationToken)
+        private async Task WaitForTemperatureStableAsync(double targetModuleTemp, double targetChamberTemp, bool isFirstStep, CancellationToken cancellationToken)
         {
             _logCallback($"设置温箱温度：{targetChamberTemp}℃");
 
@@ -195,41 +218,44 @@ namespace 五通道自动测试.Calibration
 
             await Task.Delay(2000, cancellationToken);
 
-            double currentModuleTemp = _getModuleTemperature != null ? _getModuleTemperature() : _chamberController.ReadTemperature() + 11;
-            bool isCooling = targetModuleTemp < currentModuleTemp;
-            _isCoolingDown = isCooling;
-            _wasCoolingDown = isCooling;
-
-            if (isCooling)
+            if (!isFirstStep)
             {
-                _logCallback("检测到降温模式，关闭产品供电...");
-                _instrumentManager.ODP3063.EnableChannel2Output(false);
-                _instrumentManager.SetPowerState(false);
-                _powerStateCallback?.Invoke(false);
-            }
+                double currentModuleTemp = _getModuleTemperature != null ? _getModuleTemperature() : _chamberController.ReadTemperature() + 11;
+                bool isCooling = targetModuleTemp < currentModuleTemp;
+                _isCoolingDown = isCooling;
+                _wasCoolingDown = isCooling;
 
-            if (targetModuleTemp == -52)
-            {
-                await HandleMinTemperatureAsync(targetChamberTemp, cancellationToken);
-                return;
-            }
+                if (isCooling)
+                {
+                    _logCallback("检测到降温模式，关闭产品供电...");
+                    _instrumentManager.ODP3063.EnableChannel2Output(false);
+                    _instrumentManager.SetPowerState(false);
+                    _powerStateCallback?.Invoke(false);
+                }
 
-            if (targetModuleTemp == 92)
-            {
-                await HandleMaxTemperatureAsync(cancellationToken);
-                return;
-            }
+                if (targetModuleTemp == -52)
+                {
+                    await HandleMinTemperatureAsync(targetChamberTemp, cancellationToken);
+                    return;
+                }
 
-            if (isCooling)
-            {
-                await WaitForChamberReachedAsync(targetChamberTemp, cancellationToken);
-                _logCallback($"温箱已达到 {targetChamberTemp}℃，等待 {CooldownWaitMinutes} 分钟...");
-                await Task.Delay(CooldownWaitMinutes * 60 * 1000, cancellationToken);
+                if (targetModuleTemp == 92)
+                {
+                    await HandleMaxTemperatureAsync(cancellationToken);
+                    return;
+                }
 
-                _logCallback("等待完成，恢复产品供电...");
-                _instrumentManager.ODP3063.EnableChannel2Output(true);
-                _instrumentManager.SetPowerState(true);
-                _powerStateCallback?.Invoke(true);
+                if (isCooling)
+                {
+                    await WaitForChamberReachedAsync(targetChamberTemp, cancellationToken);
+                    _logCallback($"温箱已达到 {targetChamberTemp}℃，等待 {CooldownWaitMinutes} 分钟...");
+                    await Task.Delay(CooldownWaitMinutes * 60 * 1000, cancellationToken);
+
+                    _logCallback("等待完成，恢复产品供电...");
+                    _instrumentManager.ODP3063.EnableChannel2Output(true);
+                    _instrumentManager.SetPowerState(true);
+                    _powerStateCallback?.Invoke(true);
+                }
             }
 
             await WaitForModuleTemperatureStableAsync(targetModuleTemp, cancellationToken);
@@ -281,7 +307,32 @@ namespace 五通道自动测试.Calibration
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                double currentTemp = _chamberController.ReadTemperature();
+                double currentTemp = 0;
+                bool readSuccess = false;
+
+                for (int retry = 0; retry < 2; retry++)
+                {
+                    try
+                    {
+                        currentTemp = _chamberController.ReadTemperature();
+                        readSuccess = true;
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (retry == 1)
+                        {
+                            _logCallback($"读取温箱温度失败: {ex.Message}");
+                        }
+                        await Task.Delay(1000, cancellationToken);
+                    }
+                }
+
+                if (!readSuccess)
+                {
+                    continue;
+                }
+
                 if (Math.Abs(currentTemp - targetChamberTemp) <= 1)
                 {
                     _logCallback($"温箱已达到 {currentTemp}℃");
@@ -305,11 +356,11 @@ namespace 五通道自动测试.Calibration
             }
 
             List<double> temperatureHistory = new List<double>();
+            bool lastWasStable = false;
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 double moduleTemp;
-                double chamberTemp = _chamberController.ReadTemperature();
 
                 if (_getModuleTemperature != null)
                 {
@@ -317,7 +368,7 @@ namespace 五通道自动测试.Calibration
                 }
                 else
                 {
-                    moduleTemp = chamberTemp + 11;
+                    moduleTemp = _chamberController.ReadTemperature() + 11;
                 }
                 _currentModuleTemperature = moduleTemp;
 
@@ -334,15 +385,21 @@ namespace 五通道自动测试.Calibration
                     double variation = maxTemp - minTemp;
 
                     double avgModuleTemp = temperatureHistory.Average();
-                    double diffFromTarget = Math.Abs(avgModuleTemp - targetModuleTemp);
+                    double diffFromTarget = targetModuleTemp - avgModuleTemp;
 
-                    if (variation < TemperatureStabilityThreshold && avgModuleTemp >= targetModuleTemp)
+                    bool isStable = variation < TemperatureStabilityThreshold && diffFromTarget <= 1;
+
+                    if (isStable)
                     {
-                        _logCallback($"模块温度稳定：当前 {avgModuleTemp:F1}℃（温箱 {chamberTemp:F1}℃），变化范围 {variation:F2}℃，与目标差 {diffFromTarget:F1}℃");
+                        _logCallback($"模块温度稳定：当前 {avgModuleTemp:F1}℃，变化 {variation:F2}℃，与目标差 {diffFromTarget:F1}℃");
                         return;
                     }
 
-                    _logCallback($"模块温度变化中：{minTemp:F1}℃ ~ {maxTemp:F1}℃（温箱 {chamberTemp:F1}℃），变化 {variation:F2}℃，与目标差 {diffFromTarget:F1}℃");
+                    if (!lastWasStable || variation > 1)
+                    {
+                        _logCallback($"模块温度变化中：{minTemp:F1}℃ ~ {maxTemp:F1}℃，变化 {variation:F2}℃，与目标差 {diffFromTarget:F1}℃");
+                    }
+                    lastWasStable = false;
                 }
 
                 await Task.Delay(StabilityCheckIntervalMs, cancellationToken);
@@ -355,14 +412,7 @@ namespace 五通道自动测试.Calibration
             {
                 Action<string, string> addResultCallback = (testItem, value) =>
                 {
-                    if (_parentForm != null)
-                    {
-                        _parentForm.Invoke(new Action(() =>
-                        {
-                            var method = _parentForm.GetType().GetMethod("AddCalibrationResult");
-                            method?.Invoke(_parentForm, new object[] { testItem, value });
-                        }));
-                    }
+                    _addResultCallback?.Invoke(testItem, value);
                 };
 
                 var verificationService = new VerificationService(

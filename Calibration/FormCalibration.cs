@@ -184,20 +184,30 @@ namespace 五通道自动测试.Calibration
 
         private void InitializeChamberController()
         {
-            _chamberConfig = new ChamberConfig
+            if (_mainForm is Form1 mainForm && mainForm.ChamberControlForm != null && 
+                !mainForm.ChamberControlForm.IsDisposed && 
+                mainForm.ChamberControlForm.ChamberController?.IsConnected == true)
             {
-                PortName = "COM4",
-                BaudRate = 38400,
-                DataBits = 8,
-                Parity = System.IO.Ports.Parity.Even,
-                StopBits = System.IO.Ports.StopBits.One,
-                SlaveId = 1,
-                Timeout = 10000,
-                MinTemperature = -58,
-                MaxTemperature = 150
-            };
+                _chamberController = mainForm.ChamberControlForm.ChamberController;
+                LogMessage("已使用温箱控制界面共享的温箱连接");
+            }
+            else
+            {
+                _chamberConfig = new ChamberConfig
+                {
+                    PortName = "COM4",
+                    BaudRate = 38400,
+                    DataBits = 8,
+                    Parity = System.IO.Ports.Parity.Even,
+                    StopBits = System.IO.Ports.StopBits.One,
+                    SlaveId = 1,
+                    Timeout = 10000,
+                    MinTemperature = -58,
+                    MaxTemperature = 150
+                };
 
-            _chamberController = new ChamberController(_chamberConfig);
+                _chamberController = new ChamberController(_chamberConfig);
+            }
 
             _tempPhaseService = new TemperaturePhaseVerificationService(
                 _instrumentManager,
@@ -206,7 +216,8 @@ namespace 五通道自动测试.Calibration
                 () => (double)_currentTemperature,
                 LogMessage,
                 UpdateTempPhaseProgress,
-                OnTempPhasePowerStateChanged);
+                OnTempPhasePowerStateChanged,
+                AddCalibrationResult);
         }
 
         private void InitializeTempPhaseControls()
@@ -231,7 +242,7 @@ namespace 五通道自动测试.Calibration
         {
             if (cmbSequencePreset != null && txtCustomSequence != null)
             {
-                txtCustomSequence.Visible = cmbSequencePreset.SelectedIndex == 2;
+                txtCustomSequence.Visible = cmbSequencePreset.SelectedIndex == 3;
             }
         }
 
@@ -245,17 +256,18 @@ namespace 五通道自动测试.Calibration
 
             try
             {
-                bool connected = _chamberController.IsConnected;
-                if (!connected)
+                if (_mainForm is Form1 mainForm && mainForm.ChamberControlForm != null &&
+                    !mainForm.ChamberControlForm.IsDisposed &&
+                    mainForm.ChamberControlForm.ChamberController?.IsConnected == true)
                 {
-                    LogMessage("正在连接温箱设备...");
-                    connected = _chamberController.Connect();
-                    if (!connected)
-                    {
-                        MessageBox.Show("温箱连接失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                    LogMessage("温箱连接成功");
+                    _chamberController = mainForm.ChamberControlForm.ChamberController;
+                    LogMessage("已使用温箱控制界面共享的温箱连接");
+                }
+
+                if (!_chamberController.IsConnected)
+                {
+                    MessageBox.Show("请先在温箱控制界面连接温箱设备", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
 
                 double[] sequence = GetSelectedSequence();
@@ -322,6 +334,8 @@ namespace 五通道自动测试.Calibration
                 case 1:
                     return TemperaturePhaseVerificationService.GetSequence2();
                 case 2:
+                    return TemperaturePhaseVerificationService.GetSequence3();
+                case 3:
                     string input = txtCustomSequence.Text.Trim();
                     if (string.IsNullOrEmpty(input))
                     {
@@ -459,10 +473,11 @@ namespace 五通道自动测试.Calibration
             {
                 // 从testItem中解析通道号和频率
                 // 格式: "通道{channel} {frequency}MHz"
-                var match = System.Text.RegularExpressions.Regex.Match(testItem, @"通道(\d+) (\d+)MHz");
+                var match = System.Text.RegularExpressions.Regex.Match(testItem, @"通道(CH5|CH8) (\d+)MHz");
                 if (match.Success)
                 {
-                    int channel = int.Parse(match.Groups[1].Value);
+                    string channelStr = match.Groups[1].Value;
+                    int channel = channelStr == "CH5" ? 5 : 8;
                     double frequency = double.Parse(match.Groups[2].Value);
                     
                     // 尝试解析值

@@ -11,7 +11,6 @@ namespace TemperatureChamber
         private ChamberController? _chamberController;
         private ChamberConfig? _chamberConfig;
         private Form? _mainForm;
-        private System.Windows.Forms.Timer? _statusPollingTimer;
 
         public ChamberController? ChamberController => _chamberController;
 
@@ -51,10 +50,6 @@ namespace TemperatureChamber
         /// </summary>
         private void InitializeChamberControl()
         {
-            _statusPollingTimer = new System.Windows.Forms.Timer();
-            _statusPollingTimer.Interval = 2000;
-            _statusPollingTimer.Tick += StatusPollingTimer_Tick;
-
             _chamberConfig = new ChamberConfig
             {
                 PortName = "COM4",
@@ -82,19 +77,17 @@ namespace TemperatureChamber
         {
             if (txtTestLog != null)
             {
-                string message = isConnected ? "温箱设备已连接" : "温箱设备已断开";
+                string message = isConnected ? "温箱串口已打开" : "温箱设备已断开";
                 txtTestLog.AppendText($"[{DateTime.Now:HH:mm:ss}] {message}\r\n");
                 txtTestLog.ScrollToCaret();
             }
 
             if (isConnected)
             {
-                _statusPollingTimer?.Start();
                 ReadChamberStatus();
             }
             else
             {
-                _statusPollingTimer?.Stop();
                 if (lblTemperatureValue != null)
                 {
                     lblTemperatureValue.Text = "--℃";
@@ -109,14 +102,6 @@ namespace TemperatureChamber
                     pbRunningStatus.BackColor = Color.Red;
                 }
             }
-        }
-
-        /// <summary>
-        /// 定时读取温箱状态
-        /// </summary>
-        private void StatusPollingTimer_Tick(object? sender, EventArgs e)
-        {
-            ReadChamberStatus();
         }
 
         /// <summary>
@@ -242,11 +227,20 @@ namespace TemperatureChamber
 
                 if (success)
                 {
-                    txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 温箱设备连接成功\r\n");
+                    txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 温箱通信验证成功\r\n");
                     txtTestLog?.ScrollToCaret();
 
-                    double temperature = _chamberController.ReadTemperature();
-                    txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 当前温度：{temperature:F1}℃\r\n");
+                    Thread.Sleep(1000);
+
+                    try
+                    {
+                        double temperature = _chamberController.ReadTemperature();
+                        txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 当前温度：{temperature:F1}℃\r\n");
+                    }
+                    catch (Exception ex)
+                    {
+                        txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 读取温度失败: {ex.Message}\r\n");
+                    }
                     txtTestLog?.ScrollToCaret();
 
                     UpdateChamberStatusUI(true);
@@ -292,7 +286,7 @@ namespace TemperatureChamber
                     bool success = _chamberController.Connect();
                     if (success)
                     {
-                        txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 温箱设备连接成功\r\n");
+                        txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 温箱通信验证成功\r\n");
                         txtTestLog?.ScrollToCaret();
 
                         // 读取运行状态测试连通性
@@ -601,9 +595,6 @@ namespace TemperatureChamber
 
         private void ChamberControlForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            _statusPollingTimer?.Stop();
-            _statusPollingTimer?.Dispose();
-
             if (_chamberController != null)
             {
                 _chamberController.Disconnect();

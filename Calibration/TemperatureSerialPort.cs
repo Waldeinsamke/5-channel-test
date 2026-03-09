@@ -198,6 +198,16 @@ namespace 五通道自动测试.Calibration
                 // 转换为16位有符号整数
                 short rawValue = (short)((data[0] << 8) | data[1]);
 
+                // 容错处理：如果大端序无效，尝试小端序
+                if (rawValue < -960 || rawValue > 1600)
+                {
+                    short rawValueSwapped = (short)((data[1] << 8) | data[0]);
+                    if (rawValueSwapped >= -960 && rawValueSwapped <= 1600)
+                    {
+                        rawValue = rawValueSwapped;
+                    }
+                }
+
                 // 验证数据有效性（温度范围：-60℃ 到 100℃）
                 if (rawValue >= -960 && rawValue <= 1600)
                 {

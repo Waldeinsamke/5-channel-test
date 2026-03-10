@@ -769,14 +769,14 @@ namespace 五通道自动测试.Calibration
             gbTempPhase.Controls.Add(cmbSequencePreset);
             gbTempPhase.Location = new Point(5, 646);
             gbTempPhase.Name = "gbTempPhase";
-            gbTempPhase.Size = new Size(1147, 91);
+            gbTempPhase.Size = new Size(1147, 86);
             gbTempPhase.TabIndex = 21;
             gbTempPhase.TabStop = false;
             gbTempPhase.Text = "温度相位一致性验证";
             // 
             // skip
             // 
-            skip.Location = new Point(797, 34);
+            skip.Location = new Point(920, 37);
             skip.Name = "skip";
             skip.Size = new Size(100, 35);
             skip.TabIndex = 26;
@@ -786,7 +786,7 @@ namespace 五通道自动测试.Calibration
             // btnStopTempPhase
             // 
             btnStopTempPhase.Enabled = false;
-            btnStopTempPhase.Location = new Point(1020, 34);
+            btnStopTempPhase.Location = new Point(1026, 37);
             btnStopTempPhase.Name = "btnStopTempPhase";
             btnStopTempPhase.Size = new Size(100, 35);
             btnStopTempPhase.TabIndex = 5;
@@ -795,7 +795,7 @@ namespace 五通道自动测试.Calibration
             // 
             // btnStartTempPhase
             // 
-            btnStartTempPhase.Location = new Point(908, 34);
+            btnStartTempPhase.Location = new Point(814, 37);
             btnStartTempPhase.Name = "btnStartTempPhase";
             btnStartTempPhase.Size = new Size(100, 35);
             btnStartTempPhase.TabIndex = 4;
@@ -805,7 +805,7 @@ namespace 五通道自动测试.Calibration
             // lblProgress
             // 
             lblProgress.AutoSize = true;
-            lblProgress.Location = new Point(687, 44);
+            lblProgress.Location = new Point(714, 44);
             lblProgress.Name = "lblProgress";
             lblProgress.Size = new Size(71, 20);
             lblProgress.TabIndex = 3;
@@ -814,7 +814,7 @@ namespace 五通道自动测试.Calibration
             // lblChamberTemp
             // 
             lblChamberTemp.AutoSize = true;
-            lblChamberTemp.Location = new Point(540, 44);
+            lblChamberTemp.Location = new Point(452, 44);
             lblChamberTemp.Name = "lblChamberTemp";
             lblChamberTemp.Size = new Size(114, 20);
             lblChamberTemp.TabIndex = 2;
@@ -822,10 +822,10 @@ namespace 五通道自动测试.Calibration
             // 
             // txtCustomSequence
             // 
-            txtCustomSequence.Location = new Point(215, 41);
+            txtCustomSequence.Location = new Point(193, 41);
             txtCustomSequence.Name = "txtCustomSequence";
             txtCustomSequence.PlaceholderText = "请输入自定义温度序列，如：35,-25,-52";
-            txtCustomSequence.Size = new Size(300, 27);
+            txtCustomSequence.Size = new Size(247, 27);
             txtCustomSequence.TabIndex = 1;
             txtCustomSequence.Visible = false;
             // 
@@ -833,7 +833,7 @@ namespace 五通道自动测试.Calibration
             // 
             cmbSequencePreset.FormattingEnabled = true;
             cmbSequencePreset.Items.AddRange(new object[] { "预设1（用户指定序列）", "预设2（全温度区间）", "验证相位一致性", "自定义" });
-            cmbSequencePreset.Location = new Point(20, 41);
+            cmbSequencePreset.Location = new Point(7, 41);
             cmbSequencePreset.Name = "cmbSequencePreset";
             cmbSequencePreset.Size = new Size(180, 28);
             cmbSequencePreset.TabIndex = 0;
@@ -843,7 +843,7 @@ namespace 五通道自动测试.Calibration
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
-            ClientSize = new Size(1157, 744);
+            ClientSize = new Size(1157, 737);
             Controls.Add(gbTempPhase);
             Controls.Add(SwitchPower);
             Controls.Add(modechance);

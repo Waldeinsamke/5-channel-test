@@ -236,6 +236,7 @@ namespace TemperatureChamber
                     {
                         double temperature = _chamberController.ReadTemperature();
                         txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 当前温度：{temperature:F1}℃\r\n");
+                        ReadChamberStatus();
                     }
                     catch (Exception ex)
                     {
@@ -298,6 +299,8 @@ namespace TemperatureChamber
                         txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 当前温度：{temperature:F1}℃\r\n");
                         txtTestLog?.ScrollToCaret();
 
+                        ReadChamberStatus();
+
                         UpdateChamberStatusUI(true);
                         MessageBox.Show("温箱设备连接测试成功！\n\n运行状态: " + (isRunning ? "运行中" : "停止") + "\n当前温度：" + temperature.ToString("F1") + "℃", "测试成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
@@ -319,6 +322,8 @@ namespace TemperatureChamber
                     double temperature = _chamberController.ReadTemperature();
                     txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 当前温度：{temperature:F1}℃\r\n");
                     txtTestLog?.ScrollToCaret();
+
+                    ReadChamberStatus();
 
                     MessageBox.Show("温箱设备连接测试成功！\n\n运行状态: " + (isRunning ? "运行中" : "停止") + "\n当前温度：" + temperature.ToString("F1") + "℃", "测试成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -417,6 +422,11 @@ namespace TemperatureChamber
                 double temperature = _chamberController.ReadTemperature();
                 txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 当前温度：{temperature:F1}℃\r\n");
                 txtTestLog?.ScrollToCaret();
+
+                if (lblTemperatureValue != null)
+                {
+                    lblTemperatureValue.Text = $"{temperature:F1}℃";
+                }
 
                 ushort faultInfo = _chamberController.ReadFaultInfo();
                 string faultText = GetFaultDescription(faultInfo);

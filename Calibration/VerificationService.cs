@@ -23,11 +23,7 @@ namespace 五通道自动测试.Calibration
 
         private static string GetChannelName(int channelNumber)
         {
-            if (channelNumber >= 1 && channelNumber <= 8)
-            {
-                return ((char)('A' + channelNumber - 1)).ToString();
-            }
-            return channelNumber.ToString();
+            return "CH" + channelNumber;
         }
         
         /// <summary>

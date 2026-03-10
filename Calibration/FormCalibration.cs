@@ -217,7 +217,8 @@ namespace 五通道自动测试.Calibration
                 LogMessage,
                 UpdateTempPhaseProgress,
                 OnTempPhasePowerStateChanged,
-                AddCalibrationResult);
+                AddCalibrationResult,
+                _channelMode);
         }
 
         private string GetChamberPortFromConfig()
@@ -255,6 +256,11 @@ namespace 五通道自动测试.Calibration
             if (btnStopTempPhase != null)
             {
                 btnStopTempPhase.Click += BtnStopTempPhase_Click;
+            }
+
+            if (skip != null)
+            {
+                skip.Click += Skip_Click;
             }
         }
 
@@ -306,6 +312,13 @@ namespace 五通道自动测试.Calibration
                 ultraWork2.BackColor = Color.FromArgb(255, 240, 240);
                 LogMessage("已自动进入ulw2模式");
 
+                if (_tempPhaseService != null)
+                {
+                    _tempPhaseService.ChannelMode = _channelMode;
+                    _tempPhaseService.OnTemperatureStable = ExecuteVerificationTestAsync;
+                    LogMessage($"当前通道模式: {_channelMode}");
+                }
+
                 _verificationResults.Clear();
                 if (dgvCalibrationResults != null)
                 {
@@ -340,6 +353,12 @@ namespace 五通道自动测试.Calibration
         {
             _tempPhaseService?.Stop();
             LogMessage("正在停止验证...");
+        }
+
+        private void Skip_Click(object? sender, EventArgs e)
+        {
+            _tempPhaseService?.SkipCurrentStep();
+            LogMessage("已发送跳过当前温度点命令");
         }
 
         private double[]? GetSelectedSequence()
@@ -405,12 +424,6 @@ namespace 五通道自动测试.Calibration
             {
                 Invoke(new Action(() => OnTempPhasePowerStateChanged(isOn)));
                 return;
-            }
-
-            if (lblPowerStatus != null)
-            {
-                lblPowerStatus.Text = $"产品供电状态: {(isOn ? "开启" : "关闭")}";
-                lblPowerStatus.ForeColor = isOn ? Color.Green : Color.Red;
             }
 
             if (SwitchPower != null)
@@ -1220,6 +1233,14 @@ namespace 五通道自动测试.Calibration
         private void AllRead_Click(object sender, EventArgs e)
         {
             AllRead.Enabled = false;
+            write1.Enabled = false;
+            write2.Enabled = false;
+            write3.Enabled = false;
+            write4.Enabled = false;
+            read1.Enabled = false;
+            read2.Enabled = false;
+            read3.Enabled = false;
+            read4.Enabled = false;
             LogMessage("开始读取当前通道所有频点校准参数...");
 
             System.Threading.Tasks.Task.Run(() =>
@@ -1318,6 +1339,14 @@ namespace 五通道自动测试.Calibration
                     {
                         UpdateCalibrationControls(true);
                         AllRead.Enabled = true;
+                        write1.Enabled = true;
+                        write2.Enabled = true;
+                        write3.Enabled = true;
+                        write4.Enabled = true;
+                        read1.Enabled = true;
+                        read2.Enabled = true;
+                        read3.Enabled = true;
+                        read4.Enabled = true;
                     }));
                 }
             });
@@ -1713,6 +1742,52 @@ namespace 五通道自动测试.Calibration
         }
 
         /// <summary>
+        /// 执行验证测试的辅助方法（供温度相位一致性验证回调使用）
+        /// </summary>
+        private async Task ExecuteVerificationTestAsync()
+        {
+            try
+            {
+                _verificationResults.Clear();
+                if (dgvCalibrationResults != null)
+                {
+                    dgvCalibrationResults.Rows.Clear();
+                }
+
+                LogMessage("重置模块状态：切换到3390MHz");
+                _instrumentManager.SendFrequencyCommand(3390.0);
+                _instrumentManager.SignalGenerator.SetFrequency(3390.0);
+                
+                LogMessage("重置模块状态：等待0.5秒");
+                await Task.Delay(500);
+                
+                LogMessage("重置模块状态：切换回3330MHz");
+                _instrumentManager.SendFrequencyCommand(3330.0);
+                _instrumentManager.SignalGenerator.SetFrequency(3330.0);
+                
+                LogMessage("重置模块状态：等待2秒");
+                await Task.Delay(2000);
+
+                if (_verificationService != null)
+                {
+                    LogMessage("开始执行验证测试...");
+                    await _verificationService.RunVerificationTest();
+                    LogMessage("验证测试完成");
+
+                    if (_isUlw2Mode && _verificationResults.Count > 0)
+                    {
+                        LogMessage("ulw2模式：开始自动导出验证结果...");
+                        ExportVerificationResults();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"执行验证测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// 开始验证按钮点击事件
         /// 验证仪器连接状态后启动验证流程
         /// </summary>
@@ -1842,7 +1917,7 @@ namespace 五通道自动测试.Calibration
         /// </summary>
         private void ExportVerificationResults()
         {
-            if (_verificationResults.Count == 0)
+            if (dgvCalibrationResults.Rows.Count == 0)
             {
                 LogMessage("没有验证测试结果可导出");
                 return;
@@ -1978,22 +2053,22 @@ namespace 五通道自动测试.Calibration
 
                     // 填充数据
                     int row = 2;
-                    foreach (var result in _verificationResults)
+                    foreach (DataGridViewRow dgvRow in dgvCalibrationResults.Rows)
                     {
-                        // 只导出测试值和测试时间（包含温度）
-                        worksheet.Cells[row, startColumn].Value = result.Value;
-                        
-                        // 简化测试时间，不显示年份，格式：MM-dd HH:mm:ss 温度℃
-                        string timeFormat = $"{result.TestTime.ToString("MM-dd HH:mm:ss")} {_currentTemperature:F1}℃";
-                        worksheet.Cells[row, startColumn + 1].Value = timeFormat;
-                        
-                        // 设置数据单元格居中显示
-                        worksheet.Cells[row, startColumn].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        worksheet.Cells[row, startColumn].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                        worksheet.Cells[row, startColumn + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        worksheet.Cells[row, startColumn + 1].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                        
-                        row++;
+                        if (dgvRow.Cells[1].Value != null)
+                        {
+                            worksheet.Cells[row, startColumn].Value = dgvRow.Cells[1].Value.ToString();
+                            
+                            string timeFormat = $"{DateTime.Now.ToString("MM-dd HH:mm:ss")} {_currentTemperature:F1}℃";
+                            worksheet.Cells[row, startColumn + 1].Value = timeFormat;
+                            
+                            worksheet.Cells[row, startColumn].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[row, startColumn].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                            worksheet.Cells[row, startColumn + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[row, startColumn + 1].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                            
+                            row++;
+                        }
                     }
 
                     // 自动调整列宽

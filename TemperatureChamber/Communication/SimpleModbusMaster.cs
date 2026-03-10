@@ -89,7 +89,19 @@ namespace TemperatureChamber.Communication
             try
             {
                 ushort[] registers = ReadHoldingRegisters(0x0000, 1);
-                double temperature = registers[0] / 100.0;
+                ushort rawValue = registers[0];
+                double temperature;
+
+                if (rawValue > 32767)
+                {
+                    short signedValue = (short)rawValue;
+                    temperature = signedValue / 100.0;
+                }
+                else
+                {
+                    temperature = rawValue / 100.0;
+                }
+
                 return temperature;
             }
             catch (Exception ex)

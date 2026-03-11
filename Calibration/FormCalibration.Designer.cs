@@ -87,6 +87,9 @@ namespace 五通道自动测试.Calibration
             lblChamberTemp = new Label();
             txtCustomSequence = new TextBox();
             cmbSequencePreset = new ComboBox();
+            label1 = new Label();
+            inLoss = new TextBox();
+            chkRFOut = new CheckBox();
             gbChannels.SuspendLayout();
             gbParameters.SuspendLayout();
             menuStrip1.SuspendLayout();
@@ -238,14 +241,14 @@ namespace 五通道自动测试.Calibration
             gbParameters.Margin = new Padding(4);
             gbParameters.Name = "gbParameters";
             gbParameters.Padding = new Padding(4);
-            gbParameters.Size = new Size(656, 499);
+            gbParameters.Size = new Size(656, 466);
             gbParameters.TabIndex = 3;
             gbParameters.TabStop = false;
             gbParameters.Text = "校准参数";
             // 
             // write4
             // 
-            write4.Location = new Point(437, 259);
+            write4.Location = new Point(448, 259);
             write4.Name = "write4";
             write4.Size = new Size(30, 30);
             write4.TabIndex = 25;
@@ -254,7 +257,7 @@ namespace 五通道自动测试.Calibration
             // 
             // read4
             // 
-            read4.Location = new Point(473, 259);
+            read4.Location = new Point(484, 259);
             read4.Name = "read4";
             read4.Size = new Size(30, 30);
             read4.TabIndex = 24;
@@ -264,7 +267,7 @@ namespace 五通道自动测试.Calibration
             // 
             // write3
             // 
-            write3.Location = new Point(437, 188);
+            write3.Location = new Point(448, 188);
             write3.Name = "write3";
             write3.Size = new Size(30, 30);
             write3.TabIndex = 23;
@@ -273,7 +276,7 @@ namespace 五通道自动测试.Calibration
             // 
             // read3
             // 
-            read3.Location = new Point(473, 188);
+            read3.Location = new Point(484, 188);
             read3.Name = "read3";
             read3.Size = new Size(30, 30);
             read3.TabIndex = 22;
@@ -283,7 +286,7 @@ namespace 五通道自动测试.Calibration
             // 
             // write2
             // 
-            write2.Location = new Point(437, 119);
+            write2.Location = new Point(448, 119);
             write2.Name = "write2";
             write2.Size = new Size(30, 30);
             write2.TabIndex = 21;
@@ -292,7 +295,7 @@ namespace 五通道自动测试.Calibration
             // 
             // read2
             // 
-            read2.Location = new Point(473, 118);
+            read2.Location = new Point(484, 118);
             read2.Name = "read2";
             read2.Size = new Size(30, 30);
             read2.TabIndex = 20;
@@ -304,7 +307,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblDacLow.Anchor = AnchorStyles.Left;
             lblDacLow.AutoSize = true;
-            lblDacLow.Location = new Point(138, 124);
+            lblDacLow.Location = new Point(137, 124);
             lblDacLow.Name = "lblDacLow";
             lblDacLow.Size = new Size(67, 20);
             lblDacLow.TabIndex = 1;
@@ -313,7 +316,7 @@ namespace 五通道自动测试.Calibration
             // btnDownXndLow
             // 
             btnDownXndLow.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnDownXndLow.Location = new Point(409, 276);
+            btnDownXndLow.Location = new Point(415, 276);
             btnDownXndLow.Name = "btnDownXndLow";
             btnDownXndLow.Size = new Size(24, 24);
             btnDownXndLow.TabIndex = 19;
@@ -325,7 +328,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblXndHigh.Anchor = AnchorStyles.Left;
             lblXndHigh.AutoSize = true;
-            lblXndHigh.Location = new Point(120, 193);
+            lblXndHigh.Location = new Point(119, 193);
             lblXndHigh.Name = "lblXndHigh";
             lblXndHigh.Size = new Size(110, 20);
             lblXndHigh.TabIndex = 2;
@@ -334,7 +337,7 @@ namespace 五通道自动测试.Calibration
             // btnUpXndLow
             // 
             btnUpXndLow.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnUpXndLow.Location = new Point(409, 252);
+            btnUpXndLow.Location = new Point(415, 252);
             btnUpXndLow.Name = "btnUpXndLow";
             btnUpXndLow.Size = new Size(24, 24);
             btnUpXndLow.TabIndex = 18;
@@ -346,7 +349,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblXndLow.Anchor = AnchorStyles.Left;
             lblXndLow.AutoSize = true;
-            lblXndLow.Location = new Point(120, 264);
+            lblXndLow.Location = new Point(119, 264);
             lblXndLow.Name = "lblXndLow";
             lblXndLow.Size = new Size(104, 20);
             lblXndLow.TabIndex = 3;
@@ -356,7 +359,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblDacHigh.Anchor = AnchorStyles.Left;
             lblDacHigh.AutoSize = true;
-            lblDacHigh.Location = new Point(138, 60);
+            lblDacHigh.Location = new Point(137, 60);
             lblDacHigh.Name = "lblDacHigh";
             lblDacHigh.Size = new Size(73, 20);
             lblDacHigh.TabIndex = 0;
@@ -365,7 +368,7 @@ namespace 五通道自动测试.Calibration
             // btnUpXndHigh
             // 
             btnUpXndHigh.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnUpXndHigh.Location = new Point(409, 181);
+            btnUpXndHigh.Location = new Point(415, 181);
             btnUpXndHigh.Name = "btnUpXndHigh";
             btnUpXndHigh.Size = new Size(24, 24);
             btnUpXndHigh.TabIndex = 16;
@@ -377,7 +380,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblAddrDacLow.Anchor = AnchorStyles.Left;
             lblAddrDacLow.AutoSize = true;
-            lblAddrDacLow.Location = new Point(243, 124);
+            lblAddrDacLow.Location = new Point(242, 124);
             lblAddrDacLow.Name = "lblAddrDacLow";
             lblAddrDacLow.Size = new Size(62, 20);
             lblAddrDacLow.TabIndex = 5;
@@ -386,7 +389,7 @@ namespace 五通道自动测试.Calibration
             // txtCalDacHigh
             // 
             txtCalDacHigh.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txtCalDacHigh.Location = new Point(318, 53);
+            txtCalDacHigh.Location = new Point(317, 53);
             txtCalDacHigh.Name = "txtCalDacHigh";
             txtCalDacHigh.Size = new Size(88, 27);
             txtCalDacHigh.TabIndex = 8;
@@ -395,7 +398,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblAddrXndHigh.Anchor = AnchorStyles.Left;
             lblAddrXndHigh.AutoSize = true;
-            lblAddrXndHigh.Location = new Point(243, 193);
+            lblAddrXndHigh.Location = new Point(242, 193);
             lblAddrXndHigh.Name = "lblAddrXndHigh";
             lblAddrXndHigh.Size = new Size(62, 20);
             lblAddrXndHigh.TabIndex = 6;
@@ -405,7 +408,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblAddrXndLow.Anchor = AnchorStyles.Left;
             lblAddrXndLow.AutoSize = true;
-            lblAddrXndLow.Location = new Point(243, 264);
+            lblAddrXndLow.Location = new Point(242, 264);
             lblAddrXndLow.Name = "lblAddrXndLow";
             lblAddrXndLow.Size = new Size(62, 20);
             lblAddrXndLow.TabIndex = 7;
@@ -414,7 +417,7 @@ namespace 五通道自动测试.Calibration
             // btnDownDacLow
             // 
             btnDownDacLow.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnDownDacLow.Location = new Point(409, 136);
+            btnDownDacLow.Location = new Point(415, 136);
             btnDownDacLow.Name = "btnDownDacLow";
             btnDownDacLow.Size = new Size(24, 24);
             btnDownDacLow.TabIndex = 15;
@@ -426,7 +429,7 @@ namespace 五通道自动测试.Calibration
             // 
             lblAddrDacHigh.Anchor = AnchorStyles.Left;
             lblAddrDacHigh.AutoSize = true;
-            lblAddrDacHigh.Location = new Point(243, 60);
+            lblAddrDacHigh.Location = new Point(242, 60);
             lblAddrDacHigh.Name = "lblAddrDacHigh";
             lblAddrDacHigh.Size = new Size(62, 20);
             lblAddrDacHigh.TabIndex = 4;
@@ -435,7 +438,7 @@ namespace 五通道自动测试.Calibration
             // btnDownXndHigh
             // 
             btnDownXndHigh.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnDownXndHigh.Location = new Point(409, 205);
+            btnDownXndHigh.Location = new Point(415, 205);
             btnDownXndHigh.Name = "btnDownXndHigh";
             btnDownXndHigh.Size = new Size(24, 24);
             btnDownXndHigh.TabIndex = 17;
@@ -446,7 +449,7 @@ namespace 五通道自动测试.Calibration
             // btnUpDacLow
             // 
             btnUpDacLow.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnUpDacLow.Location = new Point(409, 112);
+            btnUpDacLow.Location = new Point(415, 112);
             btnUpDacLow.Name = "btnUpDacLow";
             btnUpDacLow.Size = new Size(24, 24);
             btnUpDacLow.TabIndex = 14;
@@ -457,7 +460,7 @@ namespace 五通道自动测试.Calibration
             // btnUpDacHigh
             // 
             btnUpDacHigh.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnUpDacHigh.Location = new Point(409, 44);
+            btnUpDacHigh.Location = new Point(415, 44);
             btnUpDacHigh.Name = "btnUpDacHigh";
             btnUpDacHigh.Size = new Size(24, 24);
             btnUpDacHigh.TabIndex = 12;
@@ -468,7 +471,7 @@ namespace 五通道自动测试.Calibration
             // txtCalDacLow
             // 
             txtCalDacLow.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txtCalDacLow.Location = new Point(318, 121);
+            txtCalDacLow.Location = new Point(317, 121);
             txtCalDacLow.Name = "txtCalDacLow";
             txtCalDacLow.Size = new Size(88, 27);
             txtCalDacLow.TabIndex = 9;
@@ -476,14 +479,14 @@ namespace 五通道自动测试.Calibration
             // txtCalXndHigh
             // 
             txtCalXndHigh.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txtCalXndHigh.Location = new Point(318, 190);
+            txtCalXndHigh.Location = new Point(317, 190);
             txtCalXndHigh.Name = "txtCalXndHigh";
             txtCalXndHigh.Size = new Size(88, 27);
             txtCalXndHigh.TabIndex = 10;
             // 
             // write1
             // 
-            write1.Location = new Point(437, 51);
+            write1.Location = new Point(448, 51);
             write1.Name = "write1";
             write1.Size = new Size(30, 30);
             write1.TabIndex = 2;
@@ -493,7 +496,7 @@ namespace 五通道自动测试.Calibration
             // txtCalXndLow
             // 
             txtCalXndLow.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txtCalXndLow.Location = new Point(318, 261);
+            txtCalXndLow.Location = new Point(317, 261);
             txtCalXndLow.Name = "txtCalXndLow";
             txtCalXndLow.Size = new Size(88, 27);
             txtCalXndLow.TabIndex = 11;
@@ -501,7 +504,7 @@ namespace 五通道自动测试.Calibration
             // btnDownDacHigh
             // 
             btnDownDacHigh.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            btnDownDacHigh.Location = new Point(409, 68);
+            btnDownDacHigh.Location = new Point(415, 68);
             btnDownDacHigh.Name = "btnDownDacHigh";
             btnDownDacHigh.Size = new Size(24, 24);
             btnDownDacHigh.TabIndex = 13;
@@ -511,7 +514,7 @@ namespace 五通道自动测试.Calibration
             // 
             // read1
             // 
-            read1.Location = new Point(473, 50);
+            read1.Location = new Point(484, 50);
             read1.Name = "read1";
             read1.Size = new Size(30, 30);
             read1.TabIndex = 1;
@@ -838,12 +841,44 @@ namespace 五通道自动测试.Calibration
             cmbSequencePreset.Size = new Size(180, 28);
             cmbSequencePreset.TabIndex = 0;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            label1.Location = new Point(193, 549);
+            label1.Name = "label1";
+            label1.Size = new Size(84, 20);
+            label1.TabIndex = 22;
+            label1.Text = "输入损耗：";
+            // 
+            // inLoss
+            // 
+            inLoss.Location = new Point(283, 545);
+            inLoss.Name = "inLoss";
+            inLoss.Size = new Size(65, 27);
+            inLoss.TabIndex = 23;
+            // 
+            // chkRFOut
+            // 
+            chkRFOut.AutoSize = true;
+            chkRFOut.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            chkRFOut.Location = new Point(719, 548);
+            chkRFOut.Name = "chkRFOut";
+            chkRFOut.Size = new Size(109, 24);
+            chkRFOut.TabIndex = 24;
+            chkRFOut.Text = "RF信号输出";
+            chkRFOut.UseVisualStyleBackColor = true;
+            chkRFOut.CheckedChanged += chkRFOut_CheckedChanged;
+            // 
             // FormCalibration
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
             ClientSize = new Size(1157, 737);
+            Controls.Add(chkRFOut);
+            Controls.Add(inLoss);
+            Controls.Add(label1);
             Controls.Add(gbTempPhase);
             Controls.Add(SwitchPower);
             Controls.Add(modechance);
@@ -955,5 +990,9 @@ namespace 五通道自动测试.Calibration
         private Button btnStartTempPhase;
         private Button btnStopTempPhase;
         private Button skip;
+        private Label label1;
+        private TextBox textBox1;
+        private CheckBox chkRFOut;
+        private TextBox inLoss;
     }
 }

@@ -718,6 +718,9 @@ namespace 五通道自动测试.Calibration
             btnDownXndLow.MouseUp += (s, e) => StopLongPress();
             btnDownXndLow.MouseLeave += (s, e) => StopLongPress();
 
+            // 绑定inLoss文本框事件
+            inLoss.TextChanged += inLoss_TextChanged;
+
             // 绑定窗体滚轮事件，用于切换频率
             this.MouseWheel += FormCalibration_MouseWheel;
         }
@@ -1724,12 +1727,23 @@ namespace 五通道自动测试.Calibration
                 {
                     SwitchPower.BackColor = Color.LightCoral;
                     SwitchPower.Text = "关闭供电";
+                    chkRFOut.Checked = true;
+                    string tempPort = TempSerialPort.SelectedItem?.ToString() ?? "";
+                    if (!string.IsNullOrEmpty(tempPort))
+                    {
+                        _temperatureSerialPortManager.OpenPort(tempPort);
+                        openTempSerialPort.Text = "关闭温度串口";
+                        checkBoxAuto.Checked = true;
+                    }
                     LogMessage("ODP0603电源已开启供电");
                 }
                 else
                 {
                     SwitchPower.BackColor = Color.LightGreen;
                     SwitchPower.Text = "开启供电";
+                    chkRFOut.Checked = false;
+                    _temperatureSerialPortManager.ClosePort();
+                    openTempSerialPort.Text = "打开温度串口";
                     LogMessage("ODP0603电源已关闭供电");
                 }
             }
@@ -2248,6 +2262,43 @@ namespace 五通道自动测试.Calibration
             catch
             {
                 return 0;
+            }
+        }
+
+        private void chkRFOut_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkRFOut.Checked)
+            {
+                _instrumentManager.SignalGenerator.EnableModulation(false);
+                _instrumentManager.SignalGenerator.EnableOutput(true);
+            }
+            else
+            {
+                _instrumentManager.SignalGenerator.EnableOutput(false);
+            }
+        }
+
+        /// <summary>
+        /// inLoss文本框内容改变事件，用于设置信号源功率
+        /// 计算公式：功率 = -50 + 输入值
+        /// </summary>
+        private void inLoss_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                string input = inLoss.Text.Trim();
+                if (double.TryParse(input, out double inLossValue))
+                {
+                    // 计算信号源功率：-50加上输入的数值
+                    double power = -50 + inLossValue;
+                    // 设置信号源功率
+                    _instrumentManager.SignalGenerator.SetPower(power);
+                    LogMessage($"信号源功率已设置为: {power} dBm (输入损耗: {inLossValue})");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"设置信号源功率失败: {ex.Message}");
             }
         }
     }

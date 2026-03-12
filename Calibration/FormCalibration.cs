@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using 五通道自动测试.Instruments;
@@ -685,6 +686,9 @@ namespace 五通道自动测试.Calibration
 
             // 绑定自动校准按钮事件
             btnAutoCalibration.Click += btnAutoCalibration_Click;
+
+            // 绑定ulw1按钮事件
+            ultraWork.Click += ultraWork1_Click;
 
             // 绑定DAC High上下箭头按钮的长按事件
             btnUpDacHigh.MouseDown += (s, e) => StartLongPress(txtCalDacHigh, 1);
@@ -1883,7 +1887,7 @@ namespace 五通道自动测试.Calibration
             {
                 // 切换ulw2模式状态
                 _isUlw2Mode = !_isUlw2Mode;
-                
+
                 if (_isUlw2Mode)
                 {
                     // 进入ulw2模式，改变窗体边框颜色为红色
@@ -1903,6 +1907,295 @@ namespace 五通道自动测试.Calibration
             {
                 LogMessage($"ulw2模式切换失败: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// ulw1按钮点击事件，将当前温度区间的校准参数复制到用户选择的温度区间
+        /// </summary>
+        private void ultraWork1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using (var form = new FormTemperatureSelection(comboBoxtemp.SelectedIndex))
+                {
+                    form.StartPosition = FormStartPosition.CenterParent;
+
+                    if (form.ShowDialog() != DialogResult.OK)
+                    {
+                        LogMessage("用户取消操作");
+                        return;
+                    }
+
+                    int targetComboBoxIndex = form.SelectedTemperatureIndex;
+                    if (targetComboBoxIndex < 0)
+                    {
+                        LogMessage("未选择目标温度区间");
+                        return;
+                    }
+
+                    int currentComboBoxIndex = comboBoxtemp.SelectedIndex;
+                    if (targetComboBoxIndex == currentComboBoxIndex)
+                    {
+                        MessageBox.Show("目标温度区间不能与当前温度区间相同", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    int targetTempIndex = CalculateTemperatureIndex(targetComboBoxIndex);
+
+                    LogMessage($"开始复制校准参数：从温度区间 {comboBoxtemp.Items[currentComboBoxIndex]} 到 {comboBoxtemp.Items[targetComboBoxIndex]}");
+
+                    int result = CopyCalibrationParametersToTargetTemperature(currentComboBoxIndex, targetComboBoxIndex, targetTempIndex);
+
+                    if (result > 0)
+                    {
+                        MessageBox.Show($"参数复制完成！共复制 {result} 个参数", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("参数复制失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"ulw1操作失败: {ex.Message}");
+                MessageBox.Show($"操作失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// 根据ComboBox索引计算温度索引
+        /// </summary>
+        private int CalculateTemperatureIndex(int comboBoxIndex)
+        {
+            if (comboBoxIndex == 0)
+                return 1;
+            else if (comboBoxIndex == 1)
+                return 2;
+            else
+                return 2 * comboBoxIndex;
+        }
+
+        /// <summary>
+        /// 复制校准参数到目标温度区间
+        /// </summary>
+        private int CopyCalibrationParametersToTargetTemperature(int sourceComboIndex, int targetComboIndex, int targetTempIndex)
+        {
+            int totalParams = 0;
+            int originalFreqIndex = _frequencyIndex;
+            int originalTempIndex = _temperatureIndex;
+            int originalChannel = _currentChannel;
+
+            try
+            {
+                DisableButtons();
+
+                _temperatureSerialPortManager.StopTemperatureReport();
+                Thread.Sleep(50);
+
+                _temperatureSerialPortManager.EnterROMMode();
+                Thread.Sleep(50);
+
+                int channelCount = (_channelMode == "CH5") ? 5 : 8;
+                bool isNormalMode = (_currentMode == "normal");
+
+                LogMessage($"当前模式: {_channelMode}, {_currentMode}");
+
+                for (int freq = 1; freq <= 4; freq++)
+                {
+                    for (int channel = 1; channel <= channelCount; channel++)
+                    {
+                        _frequencyIndex = freq;
+                        _currentChannel = channel;
+
+                        CalculateAddressesForChannel(freq, _temperatureIndex);
+                        _calibrationUIUpdater.SetCurrentChannel(channel);
+
+                        ReadParam(txtCalDacHigh);
+                        Thread.Sleep(50);
+
+                        if (isNormalMode)
+                        {
+                            ReadParam(txtCalDacLow);
+                            Thread.Sleep(50);
+                        }
+
+                        ReadParam(txtCalXndHigh);
+                        Thread.Sleep(50);
+
+                        ReadParam(txtCalXndLow);
+                        Thread.Sleep(50);
+                    }
+                }
+
+                Thread.Sleep(200);
+
+                LogMessage("读取完成，开始写入目标温度区间...");
+
+                for (int freq = 1; freq <= 4; freq++)
+                {
+                    for (int channel = 1; channel <= channelCount; channel++)
+                    {
+                        _frequencyIndex = freq;
+                        _currentChannel = channel;
+
+                        CalculateAddressesForChannel(freq, targetTempIndex);
+                        _calibrationUIUpdater.SetCurrentChannel(channel);
+
+                        WriteParamFromCache(txtCalDacHigh, "DAChigh");
+                        Thread.Sleep(50);
+
+                        if (isNormalMode)
+                        {
+                            ushort dacLowAddr = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalDacLow);
+                            WriteParamFromCache(txtCalDacLow, "DAClow");
+
+                            if (_calibrationLogic.TryGetCalibrationValue(dacLowAddr, out byte dacLowValue))
+                            {
+                                Thread.Sleep(50);
+                                WriteDb36Address(txtCalDacLow, "DAClow", dacLowValue);
+                            }
+                            Thread.Sleep(50);
+                        }
+
+                        WriteParamFromCache(txtCalXndHigh, "XNDhigh");
+                        Thread.Sleep(50);
+
+                        WriteParamFromCache(txtCalXndLow, "XNDlow");
+                        Thread.Sleep(50);
+
+                        totalParams += isNormalMode ? 4 : 3;
+                    }
+                }
+
+                LogMessage($"参数复制完成，共 {totalParams} 个参数");
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"复制参数时出错: {ex.Message}");
+                throw;
+            }
+            finally
+            {
+                _frequencyIndex = originalFreqIndex;
+                _temperatureIndex = originalTempIndex;
+                _currentChannel = originalChannel;
+
+                CalculateAddresses();
+                _calibrationUIUpdater.SetCurrentChannel(originalChannel);
+                UpdateCalibrationControls(true);
+
+                try
+                {
+                    _temperatureSerialPortManager.ExitROMMode();
+                    Thread.Sleep(50);
+                    _temperatureSerialPortManager.ResumeTemperatureReport();
+                }
+                catch { }
+
+                EnableButtons();
+            }
+
+            return totalParams;
+        }
+
+        /// <summary>
+        /// 根据频率和温度计算地址
+        /// </summary>
+        private void CalculateAddressesForChannel(int frequencyIndex, int temperatureIndex)
+        {
+            if (_channelMode == "CH5")
+            {
+                if (_currentMode == "normal")
+                {
+                    _calibrationLogic.CalculateNormalAddresses(frequencyIndex, temperatureIndex);
+                }
+                else
+                {
+                    _calibrationLogic.CalculateAntennaAddresses(frequencyIndex, temperatureIndex);
+                }
+            }
+            else
+            {
+                if (_currentMode == "normal")
+                {
+                    _addressCalculator8.CalculateNormalAddresses(frequencyIndex, temperatureIndex);
+                }
+                else
+                {
+                    _addressCalculator8.CalculateAntennaAddresses(frequencyIndex, temperatureIndex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 读取单个参数
+        /// </summary>
+        private void ReadParam(TextBox textBox)
+        {
+            ushort address = _calibrationUIUpdater.GetCurrentAddressForControl(textBox);
+            _temperatureSerialPortManager.ReadEEPROM(address);
+        }
+
+        /// <summary>
+        /// 从缓存写入单个参数
+        /// </summary>
+        private void WriteParamFromCache(TextBox textBox, string parameterName)
+        {
+            ushort address = _calibrationUIUpdater.GetCurrentAddressForControl(textBox);
+
+            if (_calibrationLogic.TryGetCalibrationValue(address, out byte value))
+            {
+                _temperatureSerialPortManager.WriteEEPROM(address, value);
+                _temperatureSerialPortManager.ReadEEPROM(address);
+                LogMessage($"写入{parameterName}成功: 地址 0x{address:X4}, 值 0x{value:X2}");
+            }
+            else
+            {
+                LogMessage($"警告: 缓存中找不到地址 0x{address:X4} 的值");
+            }
+        }
+
+        /// <summary>
+        /// 禁用相关按钮
+        /// </summary>
+        private void DisableButtons()
+        {
+            this.Invoke(new Action(() =>
+            {
+                AllRead.Enabled = false;
+                write1.Enabled = false;
+                write2.Enabled = false;
+                write3.Enabled = false;
+                write4.Enabled = false;
+                read1.Enabled = false;
+                read2.Enabled = false;
+                read3.Enabled = false;
+                read4.Enabled = false;
+                ultraWork.Enabled = false;
+                ultraWork2.Enabled = false;
+            }));
+        }
+
+        /// <summary>
+        /// 启用相关按钮
+        /// </summary>
+        private void EnableButtons()
+        {
+            this.Invoke(new Action(() =>
+            {
+                AllRead.Enabled = true;
+                write1.Enabled = true;
+                write2.Enabled = true;
+                write3.Enabled = true;
+                write4.Enabled = true;
+                read1.Enabled = true;
+                read2.Enabled = true;
+                read3.Enabled = true;
+                read4.Enabled = true;
+                ultraWork.Enabled = true;
+                ultraWork2.Enabled = true;
+            }));
         }
 
         /// <summary>

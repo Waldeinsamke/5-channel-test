@@ -487,7 +487,6 @@ namespace TemperatureChamber
                 _chamberController.SetTemperature(targetTemp);
                 txtTestLog?.AppendText($"[{DateTime.Now:HH:mm:ss}] 温度已设置为：{targetTemp:F1}℃\r\n");
                 txtTestLog?.ScrollToCaret();
-                MessageBox.Show($"温度已设置为：{targetTemp:F1}℃");
             }
             catch (Exception ex)
             {

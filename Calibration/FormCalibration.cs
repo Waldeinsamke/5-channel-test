@@ -38,6 +38,7 @@ namespace 五通道自动测试.Calibration
         private float _currentTemperature = 0;
         private string _currentMode = "normal"; // 当前模式：normal 或 antenna
         private string _channelMode = "CH5"; // 当前通道模式：CH5 或 CH8
+        private bool _isOperationInProgress = false; // 操作进行中标志，用于阻止滚轮切换频点
         
         // 验证测试结果
         private List<TestResult> _verificationResults = new List<TestResult>();
@@ -736,6 +737,12 @@ namespace 五通道自动测试.Calibration
         /// </summary>
         private void FormCalibration_MouseWheel(object sender, MouseEventArgs e)
         {
+            // 如果操作正在进行，阻止滚轮切换频点
+            if (_isOperationInProgress)
+            {
+                return;
+            }
+
             // 检查鼠标是否在窗体区域内
             if (!this.Bounds.Contains(Cursor.Position))
             {
@@ -1249,6 +1256,7 @@ namespace 五通道自动测试.Calibration
             read3.Enabled = false;
             read4.Enabled = false;
             LogMessage("开始读取当前通道所有频点校准参数...");
+            DisableFrequencyAndChannelControls();
 
             System.Threading.Tasks.Task.Run(() =>
             {
@@ -1354,6 +1362,7 @@ namespace 五通道自动测试.Calibration
                         read2.Enabled = true;
                         read3.Enabled = true;
                         read4.Enabled = true;
+                        EnableFrequencyAndChannelControls();
                     }));
                 }
             });
@@ -1940,26 +1949,226 @@ namespace 五通道自动测试.Calibration
                         return;
                     }
 
+                    // 计算目标温度索引
                     int targetTempIndex = CalculateTemperatureIndex(targetComboBoxIndex);
 
                     LogMessage($"开始复制校准参数：从温度区间 {comboBoxtemp.Items[currentComboBoxIndex]} 到 {comboBoxtemp.Items[targetComboBoxIndex]}");
 
-                    int result = CopyCalibrationParametersToTargetTemperature(currentComboBoxIndex, targetComboBoxIndex, targetTempIndex);
+                    // 禁用按钮
+                    DisableButtons();
+                    DisableFrequencyAndChannelControls();
 
-                    if (result > 0)
+                    // 在后台线程执行参数复制
+                    System.Threading.Tasks.Task.Run(() =>
                     {
-                        MessageBox.Show($"参数复制完成！共复制 {result} 个参数", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("参数复制失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                        int totalParams = 0;
+                        int originalFreqIndex = _frequencyIndex;
+                        int originalTempIndex = _temperatureIndex;
+                        int originalChannel = _currentChannel;
+
+                        try
+                        {
+                            // 停止温度报告并进入ROM模式
+                            _temperatureSerialPortManager.StopTemperatureReport();
+                            System.Threading.Thread.Sleep(50);
+                            _temperatureSerialPortManager.EnterROMMode();
+                            System.Threading.Thread.Sleep(50);
+
+                            // 获取当前模式信息
+                            int channelCount = (_channelMode == "CH5") ? 5 : 8;
+                            bool isNormalMode = (_currentMode == "normal");
+
+                            LogMessage($"当前模式: {_channelMode}, {_currentMode}");
+
+                            // 读取源温度的参数（遍历所有通道和所有频点）
+                            LogMessage("开始读取源温度参数...");
+                            // 每个频点4个参数：DAChigh, DAClow, XNDhigh, XNDlow
+                            int addressCount = 4;
+                            for (int channel = 1; channel <= channelCount; channel++)
+                            {
+                                for (int freq = 1; freq <= 4; freq++)
+                                {
+                                    // 设置当前频率和通道
+                                    _frequencyIndex = freq;
+                                    _currentChannel = channel;
+                                    _calibrationUIUpdater.SetCurrentChannel(channel);
+
+                                    // 计算源温度的地址
+                                    CalculateAddressesForTemperature(_temperatureIndex);
+
+                                    // 读取4个参数的地址：DAChigh, DAClow, XNDhigh, XNDlow
+                                    ushort addrDacHigh = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalDacHigh);
+                                    LogMessage($"读取DAChigh[通道{channel}频点{freq}]: 地址 0x{addrDacHigh:X4}");
+                                    _temperatureSerialPortManager.ReadEEPROM(addrDacHigh);
+                                    System.Threading.Thread.Sleep(30);
+
+                                    if (isNormalMode)
+                                    {
+                                        ushort addrDacLow = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalDacLow);
+                                        _temperatureSerialPortManager.ReadEEPROM(addrDacLow);
+                                        System.Threading.Thread.Sleep(30);
+                                    }
+
+                                    ushort addrXndHigh = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalXndHigh);
+                                    _temperatureSerialPortManager.ReadEEPROM(addrXndHigh);
+                                    System.Threading.Thread.Sleep(30);
+
+                                    ushort addrXndLow = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalXndLow);
+                                    _temperatureSerialPortManager.ReadEEPROM(addrXndLow);
+                                    System.Threading.Thread.Sleep(30);
+                                }
+                            }
+
+                            // 等待读取完成
+                            System.Threading.Thread.Sleep(1000);
+
+                            LogMessage("读取完成，开始写入目标温度区间...");
+
+                            // 写入目标温度的参数（遍历所有通道和所有频点）
+                            for (int channel = 1; channel <= channelCount; channel++)
+                            {
+                                for (int freq = 1; freq <= 4; freq++)
+                                {
+                                    // 设置当前频率和通道
+                                    _frequencyIndex = freq;
+                                    _currentChannel = channel;
+                                    _calibrationUIUpdater.SetCurrentChannel(channel);
+                                    _temperatureIndex = originalTempIndex;
+
+                                    // 计算源温度的地址
+                                    CalculateAddressesForTemperature(_temperatureIndex);
+
+                                    // 获取源地址
+                                    ushort sourceAddrDacHigh = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalDacHigh);
+                                    ushort sourceAddrXndHigh = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalXndHigh);
+                                    ushort sourceAddrXndLow = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalXndLow);
+
+                                    // 获取源值
+                                    byte valDacHigh = 0, valXndHigh = 0, valXndLow = 0;
+                                    _calibrationLogic.TryGetCalibrationValue(sourceAddrDacHigh, out valDacHigh);
+                                    _calibrationLogic.TryGetCalibrationValue(sourceAddrXndHigh, out valXndHigh);
+                                    _calibrationLogic.TryGetCalibrationValue(sourceAddrXndLow, out valXndLow);
+
+                                    byte valDacLow = 0;
+                                    ushort sourceAddrDacLow = 0;
+                                    if (isNormalMode)
+                                    {
+                                        sourceAddrDacLow = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalDacLow);
+                                        _calibrationLogic.TryGetCalibrationValue(sourceAddrDacLow, out valDacLow);
+                                    }
+
+                                    // 计算目标温度的地址
+                                    _temperatureIndex = targetTempIndex;
+                                    CalculateAddressesForTemperature(_temperatureIndex);
+
+                                    // 写入DAChigh
+                                    ushort targetAddrDacHigh = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalDacHigh);
+                                    _temperatureSerialPortManager.WriteEEPROM(targetAddrDacHigh, valDacHigh);
+                                    _temperatureSerialPortManager.ReadEEPROM(targetAddrDacHigh);
+                                    LogMessage($"写入DAChigh[通道{channel}频点{freq}]: 源地址 0x{sourceAddrDacHigh:X4}, 目标地址 0x{targetAddrDacHigh:X4}, 值 0x{valDacHigh:X2}");
+                                    System.Threading.Thread.Sleep(30);
+
+                                    // 写入DAClow（仅normal模式）
+                                    if (isNormalMode)
+                                    {
+                                        ushort targetAddrDacLow = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalDacLow);
+                                        _temperatureSerialPortManager.WriteEEPROM(targetAddrDacLow, valDacLow);
+                                        _temperatureSerialPortManager.ReadEEPROM(targetAddrDacLow);
+                                        LogMessage($"写入DAClow[通道{channel}频点{freq}]: 源地址 0x{sourceAddrDacLow:X4}, 目标地址 0x{targetAddrDacLow:X4}, 值 0x{valDacLow:X2}");
+                                        System.Threading.Thread.Sleep(30);
+                                    }
+
+                                    // 写入XNDhigh
+                                    ushort targetAddrXndHigh = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalXndHigh);
+                                    _temperatureSerialPortManager.WriteEEPROM(targetAddrXndHigh, valXndHigh);
+                                    _temperatureSerialPortManager.ReadEEPROM(targetAddrXndHigh);
+                                    LogMessage($"写入XNDhigh[通道{channel}频点{freq}]: 源地址 0x{sourceAddrXndHigh:X4}, 目标地址 0x{targetAddrXndHigh:X4}, 值 0x{valXndHigh:X2}");
+                                    System.Threading.Thread.Sleep(30);
+
+                                    // 写入XNDlow
+                                    ushort targetAddrXndLow = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalXndLow);
+                                    _temperatureSerialPortManager.WriteEEPROM(targetAddrXndLow, valXndLow);
+                                    _temperatureSerialPortManager.ReadEEPROM(targetAddrXndLow);
+                                    LogMessage($"写入XNDlow[通道{channel}频点{freq}]: 源地址 0x{sourceAddrXndLow:X4}, 目标地址 0x{targetAddrXndLow:X4}, 值 0x{valXndLow:X2}");
+                                    System.Threading.Thread.Sleep(30);
+
+                                    // 写入36db地址（仅normal模式）
+                                    if (isNormalMode)
+                                    {
+                                        _frequencyIndex = freq;
+                                        _temperatureIndex = targetTempIndex;
+
+                                        WriteDb36Address(txtCalDacHigh, "DAChigh", valDacHigh);
+                                        WriteDb36Address(txtCalDacLow, "DAClow", valDacLow);
+                                        WriteDb36Address(txtCalXndHigh, "XNDhigh", valXndHigh);
+                                        WriteDb36Address(txtCalXndLow, "XNDlow", valXndLow);
+                                    }
+
+                                    // 统计参数数量
+                                    totalParams += isNormalMode ? 4 : 3;
+                                }
+
+                                // 每个通道写入完成后等待2秒，确保EEPROM写入稳定
+                                LogMessage($"通道{channel}写入完成，等待2秒...");
+                                System.Threading.Thread.Sleep(2000);
+                            }
+
+                            LogMessage($"参数复制完成，共 {totalParams} 个参数");
+
+                            // 显示成功提示
+                            this.Invoke(new System.Action(() =>
+                            {
+                                MessageBox.Show($"参数复制完成！共复制 {totalParams} 个参数", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }));
+                        }
+                        catch (Exception ex)
+                        {
+                            LogMessage($"复制参数时出错: {ex.Message}");
+                            this.Invoke(new System.Action(() =>
+                            {
+                                MessageBox.Show($"操作失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }));
+                        }
+                        finally
+                        {
+                            // 恢复原始状态
+                            _frequencyIndex = originalFreqIndex;
+                            _temperatureIndex = originalTempIndex;
+                            _currentChannel = originalChannel;
+
+                            // 重新计算地址并更新UI
+                            CalculateAddresses();
+                            _calibrationUIUpdater.SetCurrentChannel(originalChannel);
+                            this.Invoke(new System.Action(() =>
+                            {
+                                UpdateCalibrationControls(true);
+                            }));
+
+                            // 退出ROM模式并恢复温度报告
+                            try
+                            {
+                                _temperatureSerialPortManager.ExitROMMode();
+                                System.Threading.Thread.Sleep(50);
+                                _temperatureSerialPortManager.ResumeTemperatureReport();
+                            }
+                            catch { }
+
+                            // 启用按钮
+                            this.Invoke(new System.Action(() =>
+                            {
+                                EnableButtons();
+                                EnableFrequencyAndChannelControls();
+                            }));
+                        }
+                    });
                 }
             }
             catch (Exception ex)
             {
                 LogMessage($"ulw1操作失败: {ex.Message}");
                 MessageBox.Show($"操作失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                EnableButtons();
+                EnableFrequencyAndChannelControls();
             }
         }
 
@@ -1977,182 +2186,31 @@ namespace 五通道自动测试.Calibration
         }
 
         /// <summary>
-        /// 复制校准参数到目标温度区间
+        /// 根据温度索引计算地址
         /// </summary>
-        private int CopyCalibrationParametersToTargetTemperature(int sourceComboIndex, int targetComboIndex, int targetTempIndex)
-        {
-            int totalParams = 0;
-            int originalFreqIndex = _frequencyIndex;
-            int originalTempIndex = _temperatureIndex;
-            int originalChannel = _currentChannel;
-
-            try
-            {
-                DisableButtons();
-
-                _temperatureSerialPortManager.StopTemperatureReport();
-                Thread.Sleep(50);
-
-                _temperatureSerialPortManager.EnterROMMode();
-                Thread.Sleep(50);
-
-                int channelCount = (_channelMode == "CH5") ? 5 : 8;
-                bool isNormalMode = (_currentMode == "normal");
-
-                LogMessage($"当前模式: {_channelMode}, {_currentMode}");
-
-                for (int freq = 1; freq <= 4; freq++)
-                {
-                    for (int channel = 1; channel <= channelCount; channel++)
-                    {
-                        _frequencyIndex = freq;
-                        _currentChannel = channel;
-
-                        CalculateAddressesForChannel(freq, _temperatureIndex);
-                        _calibrationUIUpdater.SetCurrentChannel(channel);
-
-                        ReadParam(txtCalDacHigh);
-                        Thread.Sleep(50);
-
-                        if (isNormalMode)
-                        {
-                            ReadParam(txtCalDacLow);
-                            Thread.Sleep(50);
-                        }
-
-                        ReadParam(txtCalXndHigh);
-                        Thread.Sleep(50);
-
-                        ReadParam(txtCalXndLow);
-                        Thread.Sleep(50);
-                    }
-                }
-
-                Thread.Sleep(200);
-
-                LogMessage("读取完成，开始写入目标温度区间...");
-
-                for (int freq = 1; freq <= 4; freq++)
-                {
-                    for (int channel = 1; channel <= channelCount; channel++)
-                    {
-                        _frequencyIndex = freq;
-                        _currentChannel = channel;
-
-                        CalculateAddressesForChannel(freq, targetTempIndex);
-                        _calibrationUIUpdater.SetCurrentChannel(channel);
-
-                        WriteParamFromCache(txtCalDacHigh, "DAChigh");
-                        Thread.Sleep(50);
-
-                        if (isNormalMode)
-                        {
-                            ushort dacLowAddr = _calibrationUIUpdater.GetCurrentAddressForControl(txtCalDacLow);
-                            WriteParamFromCache(txtCalDacLow, "DAClow");
-
-                            if (_calibrationLogic.TryGetCalibrationValue(dacLowAddr, out byte dacLowValue))
-                            {
-                                Thread.Sleep(50);
-                                WriteDb36Address(txtCalDacLow, "DAClow", dacLowValue);
-                            }
-                            Thread.Sleep(50);
-                        }
-
-                        WriteParamFromCache(txtCalXndHigh, "XNDhigh");
-                        Thread.Sleep(50);
-
-                        WriteParamFromCache(txtCalXndLow, "XNDlow");
-                        Thread.Sleep(50);
-
-                        totalParams += isNormalMode ? 4 : 3;
-                    }
-                }
-
-                LogMessage($"参数复制完成，共 {totalParams} 个参数");
-            }
-            catch (Exception ex)
-            {
-                LogMessage($"复制参数时出错: {ex.Message}");
-                throw;
-            }
-            finally
-            {
-                _frequencyIndex = originalFreqIndex;
-                _temperatureIndex = originalTempIndex;
-                _currentChannel = originalChannel;
-
-                CalculateAddresses();
-                _calibrationUIUpdater.SetCurrentChannel(originalChannel);
-                UpdateCalibrationControls(true);
-
-                try
-                {
-                    _temperatureSerialPortManager.ExitROMMode();
-                    Thread.Sleep(50);
-                    _temperatureSerialPortManager.ResumeTemperatureReport();
-                }
-                catch { }
-
-                EnableButtons();
-            }
-
-            return totalParams;
-        }
-
-        /// <summary>
-        /// 根据频率和温度计算地址
-        /// </summary>
-        private void CalculateAddressesForChannel(int frequencyIndex, int temperatureIndex)
+        private void CalculateAddressesForTemperature(int temperatureIndex)
         {
             if (_channelMode == "CH5")
             {
                 if (_currentMode == "normal")
                 {
-                    _calibrationLogic.CalculateNormalAddresses(frequencyIndex, temperatureIndex);
+                    _calibrationLogic.CalculateNormalAddresses(_frequencyIndex, temperatureIndex);
                 }
                 else
                 {
-                    _calibrationLogic.CalculateAntennaAddresses(frequencyIndex, temperatureIndex);
+                    _calibrationLogic.CalculateAntennaAddresses(_frequencyIndex, temperatureIndex);
                 }
             }
             else
             {
                 if (_currentMode == "normal")
                 {
-                    _addressCalculator8.CalculateNormalAddresses(frequencyIndex, temperatureIndex);
+                    _addressCalculator8.CalculateNormalAddresses(_frequencyIndex, temperatureIndex);
                 }
                 else
                 {
-                    _addressCalculator8.CalculateAntennaAddresses(frequencyIndex, temperatureIndex);
+                    _addressCalculator8.CalculateAntennaAddresses(_frequencyIndex, temperatureIndex);
                 }
-            }
-        }
-
-        /// <summary>
-        /// 读取单个参数
-        /// </summary>
-        private void ReadParam(TextBox textBox)
-        {
-            ushort address = _calibrationUIUpdater.GetCurrentAddressForControl(textBox);
-            _temperatureSerialPortManager.ReadEEPROM(address);
-        }
-
-        /// <summary>
-        /// 从缓存写入单个参数
-        /// </summary>
-        private void WriteParamFromCache(TextBox textBox, string parameterName)
-        {
-            ushort address = _calibrationUIUpdater.GetCurrentAddressForControl(textBox);
-
-            if (_calibrationLogic.TryGetCalibrationValue(address, out byte value))
-            {
-                _temperatureSerialPortManager.WriteEEPROM(address, value);
-                _temperatureSerialPortManager.ReadEEPROM(address);
-                LogMessage($"写入{parameterName}成功: 地址 0x{address:X4}, 值 0x{value:X2}");
-            }
-            else
-            {
-                LogMessage($"警告: 缓存中找不到地址 0x{address:X4} 的值");
             }
         }
 
@@ -2196,6 +2254,48 @@ namespace 五通道自动测试.Calibration
                 ultraWork.Enabled = true;
                 ultraWork2.Enabled = true;
             }));
+        }
+
+        private void DisableFrequencyAndChannelControls()
+        {
+            _isOperationInProgress = true;
+            this.Invoke(new Action(() =>
+            {
+                button3330.Enabled = false;
+                button3350.Enabled = false;
+                button3370.Enabled = false;
+                button3390.Enabled = false;
+
+                jzchannel1.Enabled = false;
+                jzchannel2.Enabled = false;
+                jzchannel3.Enabled = false;
+                jzchannel4.Enabled = false;
+                jzchannel5.Enabled = false;
+                jzchannel6.Enabled = false;
+                jzchannel7.Enabled = false;
+                jzchannel8.Enabled = false;
+            }));
+        }
+
+        private void EnableFrequencyAndChannelControls()
+        {
+            this.Invoke(new Action(() =>
+            {
+                button3330.Enabled = true;
+                button3350.Enabled = true;
+                button3370.Enabled = true;
+                button3390.Enabled = true;
+
+                jzchannel1.Enabled = true;
+                jzchannel2.Enabled = true;
+                jzchannel3.Enabled = true;
+                jzchannel4.Enabled = true;
+                jzchannel5.Enabled = true;
+                jzchannel6.Enabled = true;
+                jzchannel7.Enabled = true;
+                jzchannel8.Enabled = true;
+            }));
+            _isOperationInProgress = false;
         }
 
         /// <summary>

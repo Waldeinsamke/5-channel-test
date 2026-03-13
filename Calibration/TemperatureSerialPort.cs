@@ -19,6 +19,8 @@ namespace 五通道自动测试.Calibration
         private byte[]? _lastEepromResponse;
         private readonly AutoResetEvent _eepromResponseEvent = new AutoResetEvent(false);
         private bool _disposed = false; // 资源是否已释放的标志
+        private readonly byte[] _receiveBuffer = new byte[256]; // 接收数据缓冲区
+        private int _bufferLength = 0; // 缓冲区有效数据长度
 
         /// <summary>
         /// 温度更新事件，当收到新的温度数据时触发
@@ -105,7 +107,7 @@ namespace 五通道自动测试.Calibration
 
         /// <summary>
         /// 串口数据接收事件
-        /// 处理接收到的温度数据
+        /// 处理接收到的温度数据和EEPROM响应
         /// </summary>
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
@@ -115,40 +117,50 @@ namespace 五通道自动测试.Calibration
                     return;
 
                 int bytesToRead = _serialPort.BytesToRead;
-                while (bytesToRead >= 2)
+                if (bytesToRead <= 0)
+                    return;
+
+                if (_bufferLength + bytesToRead > _receiveBuffer.Length)
                 {
-                    // 检查是否有完整的EEPROM响应帧（8字节）
-                    if (bytesToRead >= 8)
-                    {
-                        byte[] buffer = new byte[8];
-                        int bytesRead = _serialPort.Read(buffer, 0, 8);
-                        
-                        if (bytesRead == 8)
-                        {
-                            // 检查是否是EEPROM响应帧（帧头AA 55，长度8字节）
-                            if (buffer[0] == 0xAA && buffer[1] == 0x55 && buffer[2] == 0x08)
-                            {
-                                ProcessEepromResponse(buffer);
-                                continue;
-                            }
-                        }
-                    }
-                    
-                    // 处理温度数据
-                    byte[] bufferTemp = new byte[2];
-                    int bytesReadTemp = _serialPort.Read(bufferTemp, 0, 2);
-                    
-                    if (bytesReadTemp == 2)
-                    {
-                        ProcessTemperatureData(bufferTemp);
-                    }
-                    
-                    bytesToRead = _serialPort.BytesToRead;
+                    Array.Clear(_receiveBuffer, 0, _receiveBuffer.Length);
+                    _bufferLength = 0;
+                    return;
                 }
+
+                int bytesRead = _serialPort.Read(_receiveBuffer, _bufferLength, bytesToRead);
+                _bufferLength += bytesRead;
+
+                ProcessBuffer();
             }
             catch (Exception)
             {
-                // 忽略接收错误
+            }
+        }
+
+        /// <summary>
+        /// 处理缓冲区中的数据
+        /// </summary>
+        private void ProcessBuffer()
+        {
+            while (_bufferLength >= 2)
+            {
+                if (_bufferLength >= 8 && _receiveBuffer[0] == 0xAA && _receiveBuffer[1] == 0x55)
+                {
+                    byte[] frame = new byte[8];
+                    Array.Copy(_receiveBuffer, frame, 8);
+
+                    Array.Copy(_receiveBuffer, 8, _receiveBuffer, 0, _bufferLength - 8);
+                    _bufferLength -= 8;
+
+                    ProcessEepromResponse(frame);
+                }
+                else
+                {
+                    ProcessTemperatureData(new byte[] { _receiveBuffer[0], _receiveBuffer[1] });
+
+                    Array.Copy(_receiveBuffer, 2, _receiveBuffer, 0, _bufferLength - 2);
+                    _bufferLength -= 2;
+                }
             }
         }
 

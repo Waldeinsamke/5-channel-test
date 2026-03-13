@@ -918,7 +918,7 @@ namespace 五通道自动测试.Calibration
             // 确保在UI线程中更新日志控件
             if (this.InvokeRequired)
             {
-                this.Invoke(new Action<string>(LogMessage), message);
+                this.BeginInvoke(new Action<string>(LogMessage), message);
                 return;
             }
 
@@ -1951,6 +1951,21 @@ namespace 五通道自动测试.Calibration
 
                     // 计算目标温度索引
                     int targetTempIndex = CalculateTemperatureIndex(targetComboBoxIndex);
+
+                    // 弹出确认对话框
+                    string currentTemp = comboBoxtemp.Items[currentComboBoxIndex]?.ToString() ?? "未知";
+                    string targetTemp = comboBoxtemp.Items[targetComboBoxIndex]?.ToString() ?? "未知";
+                    DialogResult result = MessageBox.Show(
+                        $"确定将 {currentTemp} 的校准参数写入到 {targetTemp} 吗？",
+                        "确认写入", 
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
+                    if (result != DialogResult.Yes)
+                    {
+                        LogMessage("用户取消操作");
+                        return;
+                    }
 
                     LogMessage($"开始复制校准参数：从温度区间 {comboBoxtemp.Items[currentComboBoxIndex]} 到 {comboBoxtemp.Items[targetComboBoxIndex]}");
 

@@ -255,9 +255,9 @@ namespace 五通道自动测试.Calibration
                 btnStartTempPhase.Click += BtnStartTempPhase_Click;
             }
 
-            if (btnStopTempPhase != null)
+            if (btnHoldTempPhase != null)
             {
-                btnStopTempPhase.Click += BtnStopTempPhase_Click;
+                btnHoldTempPhase.Click += Hold_Click;
             }
 
             if (skip != null)
@@ -276,6 +276,13 @@ namespace 五通道自动测试.Calibration
 
         private async void BtnStartTempPhase_Click(object? sender, EventArgs e)
         {
+            if (_isTempPhaseRunning)
+            {
+                _tempPhaseService?.Stop();
+                LogMessage("正在停止验证...");
+                return;
+            }
+
             if (_chamberController == null)
             {
                 MessageBox.Show("温箱控制器未初始化", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -306,8 +313,8 @@ namespace 五通道自动测试.Calibration
                 }
 
                 _isTempPhaseRunning = true;
-                btnStartTempPhase.Enabled = false;
-                btnStopTempPhase.Enabled = true;
+                btnStartTempPhase.Text = "停止";
+                btnHoldTempPhase.Enabled = true;
                 cmbSequencePreset.Enabled = false;
 
                 _isUlw2Mode = true;
@@ -345,22 +352,30 @@ namespace 五通道自动测试.Calibration
             finally
             {
                 _isTempPhaseRunning = false;
-                btnStartTempPhase.Enabled = true;
-                btnStopTempPhase.Enabled = false;
+                btnStartTempPhase.Text = "开始";
+                btnHoldTempPhase.Enabled = false;
+                btnHoldTempPhase.Text = "保持";
                 cmbSequencePreset.Enabled = true;
             }
-        }
-
-        private void BtnStopTempPhase_Click(object? sender, EventArgs e)
-        {
-            _tempPhaseService?.Stop();
-            LogMessage("正在停止验证...");
         }
 
         private void Skip_Click(object? sender, EventArgs e)
         {
             _tempPhaseService?.SkipCurrentStep();
             LogMessage("已发送跳过当前温度点命令");
+        }
+
+        private void Hold_Click(object? sender, EventArgs e)
+        {
+            _tempPhaseService?.ToggleHold();
+            if (_tempPhaseService?.IsHold == true)
+            {
+                btnHoldTempPhase.Text = "继续";
+            }
+            else
+            {
+                btnHoldTempPhase.Text = "保持";
+            }
         }
 
         private double[]? GetSelectedSequence()

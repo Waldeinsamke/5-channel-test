@@ -81,8 +81,8 @@ namespace 五通道自动测试.Calibration
             SwitchPower = new Button();
             gbTempPhase = new GroupBox();
             skip = new Button();
-            btnStopTempPhase = new Button();
             btnStartTempPhase = new Button();
+            btnHoldTempPhase = new Button();
             lblProgress = new Label();
             lblChamberTemp = new Label();
             txtCustomSequence = new TextBox();
@@ -764,8 +764,8 @@ namespace 五通道自动测试.Calibration
             // gbTempPhase
             // 
             gbTempPhase.Controls.Add(skip);
-            gbTempPhase.Controls.Add(btnStopTempPhase);
             gbTempPhase.Controls.Add(btnStartTempPhase);
+            gbTempPhase.Controls.Add(btnHoldTempPhase);
             gbTempPhase.Controls.Add(lblProgress);
             gbTempPhase.Controls.Add(lblChamberTemp);
             gbTempPhase.Controls.Add(txtCustomSequence);
@@ -786,16 +786,6 @@ namespace 五通道自动测试.Calibration
             skip.Text = "跳过";
             skip.UseVisualStyleBackColor = true;
             // 
-            // btnStopTempPhase
-            // 
-            btnStopTempPhase.Enabled = false;
-            btnStopTempPhase.Location = new Point(1026, 37);
-            btnStopTempPhase.Name = "btnStopTempPhase";
-            btnStopTempPhase.Size = new Size(100, 35);
-            btnStopTempPhase.TabIndex = 5;
-            btnStopTempPhase.Text = "停止";
-            btnStopTempPhase.UseVisualStyleBackColor = true;
-            // 
             // btnStartTempPhase
             // 
             btnStartTempPhase.Location = new Point(814, 37);
@@ -804,6 +794,16 @@ namespace 五通道自动测试.Calibration
             btnStartTempPhase.TabIndex = 4;
             btnStartTempPhase.Text = "开始";
             btnStartTempPhase.UseVisualStyleBackColor = true;
+            // 
+            // btnHoldTempPhase
+            // 
+            btnHoldTempPhase.Enabled = false;
+            btnHoldTempPhase.Location = new Point(1026, 37);
+            btnHoldTempPhase.Name = "btnHoldTempPhase";
+            btnHoldTempPhase.Size = new Size(100, 35);
+            btnHoldTempPhase.TabIndex = 27;
+            btnHoldTempPhase.Text = "保持";
+            btnHoldTempPhase.UseVisualStyleBackColor = true;
             // 
             // lblProgress
             // 
@@ -988,7 +988,7 @@ namespace 五通道自动测试.Calibration
         private Label lblChamberTemp;
         private Label lblProgress;
         private Button btnStartTempPhase;
-        private Button btnStopTempPhase;
+        private Button btnHoldTempPhase;
         private Button skip;
         private Label label1;
         private TextBox textBox1;

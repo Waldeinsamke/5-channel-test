@@ -60,8 +60,10 @@ namespace 五通道自动测试.Calibration
         private bool _wasCoolingDown = false;
         private bool _skipRequested = false;
         private bool _stopRequested = false;
+        private bool _holdRequested = false;
 
         public bool IsRunning { get; private set; } = false;
+        public bool IsHold { get; private set; } = false;
 
         public TemperaturePhaseVerificationService(
             InstrumentManager instrumentManager,
@@ -141,6 +143,18 @@ namespace 五通道自动测试.Calibration
 
                         await WaitForTemperatureStableAsync(targetModuleTemp, targetChamberTemp, i == 0, linkedCts.Token);
 
+                        while (_holdRequested && !_stopRequested)
+                        {
+                            _logCallback("[保持] 已进入保持状态，等待继续...");
+                            await Task.Delay(1000, linkedCts.Token);
+                        }
+
+                        if (_stopRequested)
+                        {
+                            _logCallback("[停止] 验证已停止");
+                            return;
+                        }
+
                         _logCallback($"温度已稳定，开始执行相位读取...");
                         await ExecutePhaseReadingAsync(linkedCts.Token);
 
@@ -181,6 +195,8 @@ namespace 五通道自动测试.Calibration
                 IsRunning = false;
                 _skipRequested = false;
                 _stopRequested = false;
+                _holdRequested = false;
+                IsHold = false;
                 _chamberController.ResumePolling();
                 _cancellationTokenSource?.Dispose();
                 _cancellationTokenSource = null;
@@ -214,6 +230,13 @@ namespace 五通道自动测试.Calibration
             _skipRequested = true;
             _cancellationTokenSource?.Cancel();
             _logCallback("已发送跳过当前温度点命令");
+        }
+
+        public void ToggleHold()
+        {
+            _holdRequested = !_holdRequested;
+            IsHold = _holdRequested;
+            _logCallback(_holdRequested ? "[保持] 已进入保持状态" : "[继续] 已取消保持状态");
         }
 
         private async Task WaitForTemperatureStableAsync(double targetModuleTemp, double targetChamberTemp, bool isFirstStep, CancellationToken cancellationToken)

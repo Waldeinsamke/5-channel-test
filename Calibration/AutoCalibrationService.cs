@@ -1,3 +1,8 @@
+// AutoCalibrationService.cs 自动校准核心算法
+/// <summary>
+/// 五通道自动测试系统的校准模块
+/// 包含自动校准服务及相关数据模型
+/// </summary>
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -5,55 +10,111 @@ using 五通道自动测试.Instruments;
 
 namespace 五通道自动测试.Calibration
 {
+    /// <summary>
+    /// 校准请求数据类
+    /// 封装一次校准操作所需的参数
+    /// </summary>
     public class CalibrationRequest
     {
+        /// <summary>通道号 (0-4)</summary>
         public int Channel { get; set; }
+        /// <summary>频点索引</summary>
         public int FrequencyIndex { get; set; }
+        /// <summary>温度索引</summary>
         public int TemperatureIndex { get; set; }
+        /// <summary>校准模式: normal-正常模式, antenna-天线模式</summary>
         public string Mode { get; set; } = "normal";
+        /// <summary>目标幅度值 (dB)</summary>
         public double TargetAmplitude { get; set; }
+        /// <summary>目标相位值 (度)</summary>
         public double TargetPhase { get; set; }
+        /// <summary>初始DAC高位值</summary>
         public byte InitialDacHigh { get; set; }
+        /// <summary>初始DAC低位值</summary>
         public byte InitialDacLow { get; set; }
+        /// <summary>初始XND高位值</summary>
         public byte InitialXndHigh { get; set; }
+        /// <summary>初始XND低位值</summary>
         public byte InitialXndLow { get; set; }
     }
 
+    /// <summary>
+    /// 校准结果数据类
+    /// 封装校准操作的结果信息
+    /// </summary>
     public class CalibrationResult
     {
+        /// <summary>校准是否成功</summary>
         public bool Success { get; set; }
+        /// <summary>结果消息或错误信息</summary>
         public string Message { get; set; } = "";
+        /// <summary>迭代次数</summary>
         public int Iterations { get; set; }
+        /// <summary>最终幅度值 (dB)</summary>
         public double FinalAmplitude { get; set; }
+        /// <summary>最终相位值 (度)</summary>
         public double FinalPhase { get; set; }
+        /// <summary>最终DAC高位值</summary>
         public byte DacHigh { get; set; }
+        /// <summary>最终DAC低位值</summary>
         public byte DacLow { get; set; }
+        /// <summary>最终XND高位值</summary>
         public byte XndHigh { get; set; }
+        /// <summary>最终XND低位值</summary>
         public byte XndLow { get; set; }
     }
 
+    /// <summary>
+    /// 自动校准服务
+    /// 负责根据用户输入的校准参数，自动进行校准操作
+    /// 封装所有与自动校准相关的逻辑
+    /// </summary>
     public class AutoCalibrationService
     {
+        /// <summary>矢量网络分析仪 (ZNB8)</summary>
         private readonly ZNB8 _znb8;
+        /// <summary>温度串口通信端口</summary>
         private readonly TemperatureSerialPort _tempSerialPort;
+        /// <summary>校准逻辑处理类</summary>
         private readonly CalibrationLogic _calibrationLogic;
+        /// <summary>CH8通道地址计算器</summary>
         private readonly CalibrationAddressCalculator8 _addressCalculator8;
+        /// <summary>当前通道模式 (如 "CH8" 或其他)</summary>
         private readonly string _channelMode;
 
+        /// <summary>最小校准值</summary>
         private const byte MIN_CALIBRATION_VALUE = 0x01;
+        /// <summary>正常模式DAC高位最大值</summary>
         private const byte MAX_DAC_HIGH_NORMAL = 0x0F;
+        /// <summary>天线模式DAC高位最大值</summary>
         private const byte MAX_DAC_HIGH_ANTENNA = 0xFF;
+        /// <summary>XND低位最大值</summary>
         private const byte MAX_XND_LOW = 0xFF;
 
+        /// <summary>最大迭代次数</summary>
         public int MaxIterations { get; set; } = 50;
+        /// <summary>幅度收敛容差 (dB)</summary>
         public double AmplitudeTolerance { get; set; } = 0.2;
+        /// <summary>相位收敛容差 (度)</summary>
         public double PhaseTolerance { get; set; } = 0.4;
+        /// <summary>参数写入后的延迟时间 (毫秒)</summary>
         public int PostWriteDelayMs { get; set; } = 1000;
 
+        /// <summary>日志消息事件</summary>
         public event Action<string>? LogMessage;
+        /// <summary>进度变化事件 (当前步骤, 总步骤数)</summary>
         public event Action<int, int>? ProgressChanged;
+        /// <summary>参数写入事件 (参数名, 参数值)</summary>
         public event Action<string, byte>? ParameterWritten;
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="znb8">矢量网络分析仪实例</param>
+        /// <param name="tempSerialPort">温度串口通信实例</param>
+        /// <param name="calibrationLogic">校准逻辑处理类实例</param>
+        /// <param name="addressCalculator8">CH8通道地址计算器实例</param>
+        /// <param name="channelMode">通道模式标识</param>
         public AutoCalibrationService(
             ZNB8 znb8,
             TemperatureSerialPort tempSerialPort,
@@ -68,11 +129,22 @@ namespace 五通道自动测试.Calibration
             _channelMode = channelMode;
         }
 
+        /// <summary>
+        /// 获取指定模式下的最大DAC高位值
+        /// </summary>
+        /// <param name="mode">校准模式 (normal/antenna)</param>
+        /// <returns>最大DAC高位值</returns>
         private byte GetMaxDacHigh(string mode)
         {
             return mode == "antenna" ? MAX_DAC_HIGH_ANTENNA : MAX_DAC_HIGH_NORMAL;
         }
 
+        /// <summary>
+        /// 执行自动校准的异步入口方法
+        /// 先进行幅度校准，再进行相位校准
+        /// </summary>
+        /// <param name="request">校准请求参数</param>
+        /// <returns>校准结果</returns>
         public async Task<CalibrationResult> CalibrateAsync(CalibrationRequest request)
         {
             var result = new CalibrationResult();
@@ -145,6 +217,11 @@ namespace 五通道自动测试.Calibration
             return result;
         }
 
+        /// <summary>
+        /// 计算校准地址
+        /// 根据通道模式和校准模式，计算EEPROM中存储校准参数的地址
+        /// </summary>
+        /// <param name="request">校准请求参数</param>
         private void CalculateAddresses(CalibrationRequest request)
         {
             if (_channelMode == "CH8")
@@ -171,6 +248,15 @@ namespace 五通道自动测试.Calibration
             }
         }
 
+        /// <summary>
+        /// 获取EEPROM地址
+        /// 根据请求参数获取DAC和XND的EEPROM存储地址
+        /// </summary>
+        /// <param name="request">校准请求参数</param>
+        /// <param name="addrDacHigh">输出: DAC高位地址</param>
+        /// <param name="addrDacLow">输出: DAC低位地址</param>
+        /// <param name="addrXndHigh">输出: XND高位地址</param>
+        /// <param name="addrXndLow">输出: XND低位地址</param>
         private void GetAddresses(CalibrationRequest request, out ushort addrDacHigh, out ushort addrDacLow, out ushort addrXndHigh, out ushort addrXndLow)
         {
             addrDacHigh = 0;
@@ -221,26 +307,54 @@ namespace 五通道自动测试.Calibration
             }
         }
 
+        /// <summary>
+        /// 幅度校准内部结果类
+        /// </summary>
         private class AmplitudeResult
         {
+            /// <summary>校准是否成功</summary>
             public bool Success { get; set; }
+            /// <summary>结果消息或错误信息</summary>
             public string Message { get; set; } = "";
+            /// <summary>迭代次数</summary>
             public int Iterations { get; set; }
+            /// <summary>最终幅度值</summary>
             public double FinalValue { get; set; }
+            /// <summary>最终DAC高位值</summary>
             public byte FinalDacHigh { get; set; }
+            /// <summary>最终DAC低位值</summary>
             public byte FinalDacLow { get; set; }
         }
 
+        /// <summary>
+        /// 相位校准内部结果类
+        /// </summary>
         private class PhaseResult
         {
+            /// <summary>校准是否成功</summary>
             public bool Success { get; set; }
+            /// <summary>结果消息或错误信息</summary>
             public string Message { get; set; } = "";
+            /// <summary>迭代次数</summary>
             public int Iterations { get; set; }
+            /// <summary>最终相位值</summary>
             public double FinalValue { get; set; }
+            /// <summary>最终XND高位值</summary>
             public byte FinalXndHigh { get; set; }
+            /// <summary>最终XND低位值</summary>
             public byte FinalXndLow { get; set; }
         }
 
+        /// <summary>
+        /// 幅度校准异步方法
+        /// 通过迭代调整DAC参数，使幅度值收敛到目标值
+        /// </summary>
+        /// <param name="request">校准请求参数</param>
+        /// <param name="addrDacHigh">DAC高位EEPROM地址</param>
+        /// <param name="addrDacLow">DAC低位EEPROM地址</param>
+        /// <param name="initialDacHigh">初始DAC高位值</param>
+        /// <param name="initialDacLow">初始DAC低位值</param>
+        /// <returns>幅度校准结果</returns>
         private async Task<AmplitudeResult> CalibrateAmplitudeAsync(
             CalibrationRequest request,
             ushort addrDacHigh,
@@ -369,6 +483,17 @@ namespace 五通道自动测试.Calibration
             return result;
         }
 
+        /// <summary>
+        /// 相位校准异步方法
+        /// 通过迭代调整XND参数，使相位值收敛到目标值
+        /// 当XND Low饱和时，自动切换到XND High调整
+        /// </summary>
+        /// <param name="request">校准请求参数</param>
+        /// <param name="addrXndHigh">XND高位EEPROM地址</param>
+        /// <param name="addrXndLow">XND低位EEPROM地址</param>
+        /// <param name="initialXndHigh">初始XND高位值</param>
+        /// <param name="initialXndLow">初始XND低位值</param>
+        /// <returns>相位校准结果</returns>
         private async Task<PhaseResult> CalibratePhaseAsync(
             CalibrationRequest request,
             ushort addrXndHigh,
@@ -518,6 +643,17 @@ namespace 五通道自动测试.Calibration
             return result;
         }
 
+        /// <summary>
+        /// 计算步长
+        /// 根据当前误差与上次误差的比较，动态调整迭代步长
+        /// 如果连续两次没有改善，则减小步长
+        /// </summary>
+        /// <param name="step">当前步长</param>
+        /// <param name="lastError">上次误差</param>
+        /// <param name="currentError">当前误差</param>
+        /// <param name="noImprovementCount">连续未改善次数 (引用)</param>
+        /// <param name="currentDirection">当前调整方向</param>
+        /// <returns>调整后的步长</returns>
         private int CalculateStepSize(int step, double lastError, double currentError, ref int noImprovementCount, int currentDirection)
         {
             if (lastError != double.MaxValue && Math.Abs(currentError) >= Math.Abs(lastError))

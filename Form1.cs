@@ -1129,11 +1129,8 @@ namespace 五通道自动测试
         /// </summary>
         private void CalibrationForm_FormClosed(object? sender, FormClosedEventArgs e)
         {
-            if (_isCalibrationMode)
-            {
-                _isCalibrationMode = false;
-                this.Show();
-            }
+            _isCalibrationMode = false;
+            this.Show();
         }
 
         /// <summary>

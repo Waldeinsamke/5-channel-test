@@ -2321,9 +2321,19 @@ namespace 五通道自动测试.Calibration
                 jzchannel3.Enabled = true;
                 jzchannel4.Enabled = true;
                 jzchannel5.Enabled = true;
-                jzchannel6.Enabled = true;
-                jzchannel7.Enabled = true;
-                jzchannel8.Enabled = true;
+
+                if (_channelMode == "CH8")
+                {
+                    jzchannel6.Enabled = true;
+                    jzchannel7.Enabled = true;
+                    jzchannel8.Enabled = true;
+                }
+                else
+                {
+                    jzchannel6.Enabled = false;
+                    jzchannel7.Enabled = false;
+                    jzchannel8.Enabled = false;
+                }
             }));
             _isOperationInProgress = false;
         }

@@ -1893,7 +1893,9 @@ namespace 五通道自动测试.Calibration
             finally
             {
                 startPhase.Enabled = true;
-                
+
+                _instrumentManager.DisconnectZNB8();
+
                 if (_isUlw2Mode && _verificationResults.Count > 0)
                 {
                     LogMessage("ulw2模式：开始自动导出验证结果...");
@@ -2262,6 +2264,7 @@ namespace 五通道自动测试.Calibration
                 read4.Enabled = false;
                 ultraWork.Enabled = false;
                 ultraWork2.Enabled = false;
+                startPhase.Enabled = false;
             }));
         }
 
@@ -2283,6 +2286,7 @@ namespace 五通道自动测试.Calibration
                 read4.Enabled = true;
                 ultraWork.Enabled = true;
                 ultraWork2.Enabled = true;
+                startPhase.Enabled = true;
             }));
         }
 

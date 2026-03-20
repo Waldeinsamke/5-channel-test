@@ -40,6 +40,10 @@ namespace 五通道自动测试.Calibration
         private string _channelMode = "CH5"; // 当前通道模式：CH5 或 CH8
         private bool _isOperationInProgress = false; // 操作进行中标志，用于阻止滚轮切换频点
         
+        // 保存write2和read2按钮的原始状态，用于恢复
+        private bool _write2WasEnabled = true;
+        private bool _read2WasEnabled = true;
+        
         // 验证测试结果
         private List<TestResult> _verificationResults = new List<TestResult>();
         
@@ -1261,17 +1265,9 @@ namespace 五通道自动测试.Calibration
         /// </summary>
         private void AllRead_Click(object sender, EventArgs e)
         {
-            AllRead.Enabled = false;
-            write1.Enabled = false;
-            write2.Enabled = false;
-            write3.Enabled = false;
-            write4.Enabled = false;
-            read1.Enabled = false;
-            read2.Enabled = false;
-            read3.Enabled = false;
-            read4.Enabled = false;
-            LogMessage("开始读取当前通道所有频点校准参数...");
+            DisableButtons();
             DisableFrequencyAndChannelControls();
+            LogMessage("开始读取当前通道所有频点校准参数...");
 
             System.Threading.Tasks.Task.Run(() =>
             {
@@ -1368,15 +1364,7 @@ namespace 五通道自动测试.Calibration
                     this.Invoke(new System.Action(() =>
                     {
                         UpdateCalibrationControls(true);
-                        AllRead.Enabled = true;
-                        write1.Enabled = true;
-                        write2.Enabled = true;
-                        write3.Enabled = true;
-                        write4.Enabled = true;
-                        read1.Enabled = true;
-                        read2.Enabled = true;
-                        read3.Enabled = true;
-                        read4.Enabled = true;
+                        EnableButtons();
                         EnableFrequencyAndChannelControls();
                     }));
                 }
@@ -1842,7 +1830,8 @@ namespace 五通道自动测试.Calibration
             
             _verificationResults.Clear();
 
-            startPhase.Enabled = false;
+            DisableButtons();
+            DisableFrequencyAndChannelControls();
 
             try
             {
@@ -1892,7 +1881,8 @@ namespace 五通道自动测试.Calibration
             }
             finally
             {
-                startPhase.Enabled = true;
+                EnableButtons();
+                EnableFrequencyAndChannelControls();
 
                 _instrumentManager.DisconnectZNB8();
 
@@ -2253,6 +2243,9 @@ namespace 五通道自动测试.Calibration
         {
             this.Invoke(new Action(() =>
             {
+                _write2WasEnabled = write2.Enabled;
+                _read2WasEnabled = read2.Enabled;
+
                 AllRead.Enabled = false;
                 write1.Enabled = false;
                 write2.Enabled = false;
@@ -2277,11 +2270,11 @@ namespace 五通道自动测试.Calibration
             {
                 AllRead.Enabled = true;
                 write1.Enabled = true;
-                write2.Enabled = true;
+                write2.Enabled = _write2WasEnabled;
                 write3.Enabled = true;
                 write4.Enabled = true;
                 read1.Enabled = true;
-                read2.Enabled = true;
+                read2.Enabled = _read2WasEnabled;
                 read3.Enabled = true;
                 read4.Enabled = true;
                 ultraWork.Enabled = true;

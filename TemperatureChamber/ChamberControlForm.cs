@@ -171,6 +171,12 @@ namespace TemperatureChamber
         /// </summary>
         private void OnChamberStatusUpdated(object? sender, DeviceStatus status)
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() => OnChamberStatusUpdated(sender, status)));
+                return;
+            }
+
             try
             {
                 if (txtTestLog != null)

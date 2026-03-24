@@ -33,8 +33,16 @@ namespace 五通道自动测试
             InitializeComponent();
             MaximizeBox = false;
             FormBorderStyle = FormBorderStyle.FixedSingle;
+
+            this.FormClosing += Form1_FormClosing;
+
             LoadInstrumentConfig();
             InitializeTestSystem();
+        }
+
+        private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            _instrumentManager?.Dispose();
         }
 
         /// <summary>

@@ -27,6 +27,7 @@ namespace 五通道自动测试.Instruments
         
         public virtual bool Connect()
         {
+            ResourceManager? resourceManager = null;
             try
             {
                 if (string.IsNullOrEmpty(Address))
@@ -34,8 +35,14 @@ namespace 五通道自动测试.Instruments
                     IsConnected = false;
                     return false;
                 }
-                
-                using var resourceManager = new ResourceManager();
+
+                if (_session != null)
+                {
+                    _session.Dispose();
+                    _session = null;
+                }
+
+                resourceManager = new ResourceManager();
                 _session = (MessageBasedSession)resourceManager.Open(Address);
                 _session.TimeoutMilliseconds = TimeoutMilliseconds;
                 IsConnected = true;
@@ -44,9 +51,15 @@ namespace 五通道自动测试.Instruments
             }
             catch (Exception ex)
             {
+                _session?.Dispose();
+                _session = null;
                 IsConnected = false;
                 Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] 仪表连接失败：{Address}，错误：{ex.Message}");
                 return false;
+            }
+            finally
+            {
+                resourceManager?.Dispose();
             }
         }
         

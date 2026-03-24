@@ -132,8 +132,9 @@ namespace 五通道自动测试.Calibration
 
                 ProcessBuffer();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogMessage?.Invoke($"[{DateTime.Now:HH:mm:ss}] 串口数据接收异常: {ex.Message}");
             }
         }
 

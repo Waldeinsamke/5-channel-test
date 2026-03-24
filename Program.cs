@@ -10,9 +10,11 @@ namespace 五通道自动测试
             ApplicationConfiguration.Initialize();
 
             InstrumentManager instrumentManager = new InstrumentManager();
-            
+
             Form1 mainForm = new Form1(instrumentManager);
             Application.Run(mainForm);
+
+            instrumentManager?.Dispose();
         }
     }
 }

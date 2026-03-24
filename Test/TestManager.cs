@@ -14,6 +14,7 @@ namespace 五通道自动测试.Test
         private readonly Dictionary<string, TestItem> _testItems;
         private readonly SynchronizationContext? _syncContext;
         private CancellationTokenSource? _cts;
+        private readonly object _ctsLock = new object();
         
         /// <summary>
         /// 测试完成事件
@@ -884,8 +885,14 @@ namespace 五通道自动测试.Test
         /// <returns>测试结果列表</returns>
         public async Task<List<TestResult>> RunBatchTestAsync(List<int> channels, List<string> testItemNames)
         {
-            // 创建新的取消令牌源
-            _cts = new CancellationTokenSource();
+            // 创建新的取消令牌源（线程安全方式）
+            CancellationTokenSource? newCts = null;
+            lock (_ctsLock)
+            {
+                _cts?.Dispose();
+                newCts = new CancellationTokenSource();
+                _cts = newCts;
+            }
             var cancellationToken = _cts.Token;
             
             try
@@ -915,9 +922,12 @@ namespace 五通道自动测试.Test
             }
             finally
             {
-                // 释放取消令牌源
-                _cts.Dispose();
-                _cts = null;
+                // 释放取消令牌源（线程安全方式）
+                lock (_ctsLock)
+                {
+                    _cts?.Dispose();
+                    _cts = null;
+                }
             }
             
             return _testResults;
@@ -1120,10 +1130,13 @@ namespace 五通道自动测试.Test
         /// </summary>
         public void StopTest()
         {
-            if (_cts != null)
+            lock (_ctsLock)
             {
-                LogGenerated?.Invoke(this, "正在停止测试...");
-                _cts.Cancel();
+                if (_cts != null && !_cts.IsCancellationRequested)
+                {
+                    LogGenerated?.Invoke(this, "正在停止测试...");
+                    _cts.Cancel();
+                }
             }
         }
     }

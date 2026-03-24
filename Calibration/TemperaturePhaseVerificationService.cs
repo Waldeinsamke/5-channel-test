@@ -121,7 +121,6 @@ namespace 五通道自动测试.Calibration
             }
 
             IsRunning = true;
-            _chamberController.PausePolling();
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var linkedCts = _cancellationTokenSource;
 
@@ -287,6 +286,8 @@ namespace 五通道自动测试.Calibration
                 {
                 }
             }
+
+            _chamberController.PausePolling();
 
             await Task.Delay(2000, cancellationToken);
 

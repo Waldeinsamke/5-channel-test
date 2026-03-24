@@ -43,8 +43,7 @@ namespace 五通道自动测试.Calibration
             { 92, 85 }
         };
 
-        private static readonly double[] DefaultSequence1 = { 35, -25, -52, -25, 35, 65, 92, 65, 35 };
-        private static readonly double[] DefaultSequence2 = { -52, -45, -35, -25, -15, -5, 5, 15, 25, 35, 45, 55, 65, 75, 85, 92 };
+        private static readonly double[] DefaultSequence1 = { 35, -52, -25, 55, 92, 35 };
         private static readonly double[] DefaultSequence3 = { 35, -25, -52, -25, 35, 65, 92, 65, 35, -25, -52, -25, 35, 65, 92, 65, 35 };
 
         private const double TemperatureStabilityThreshold = 0.2;
@@ -88,7 +87,6 @@ namespace 五通道自动测试.Calibration
         }
 
         public static double[] GetSequence1() => DefaultSequence1.ToArray();
-        public static double[] GetSequence2() => DefaultSequence2.ToArray();
         public static double[] GetSequence3() => DefaultSequence3.ToArray();
 
         public static double CalculateChamberTemperature(double moduleTemperature)

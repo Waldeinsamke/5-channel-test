@@ -835,7 +835,7 @@ namespace 五通道自动测试.Calibration
             // cmbSequencePreset
             // 
             cmbSequencePreset.FormattingEnabled = true;
-            cmbSequencePreset.Items.AddRange(new object[] { "预设1（用户指定序列）", "预设2（全温度区间）", "验证相位一致性", "自定义" });
+            cmbSequencePreset.Items.AddRange(new object[] { "预设1（用户指定序列）", "验证相位一致性", "自定义" });
             cmbSequencePreset.Location = new Point(7, 41);
             cmbSequencePreset.Name = "cmbSequencePreset";
             cmbSequencePreset.Size = new Size(180, 28);

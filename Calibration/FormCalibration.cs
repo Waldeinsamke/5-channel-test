@@ -92,6 +92,12 @@ namespace 五通道自动测试.Calibration
             // 调用Windows Forms设计器生成的代码，初始化UI控件
             InitializeComponent();
 
+            // 设置温度序列默认选择 Sequence3（验证相位一致性）
+            if (cmbSequencePreset != null)
+            {
+                cmbSequencePreset.SelectedIndex = 1;
+            }
+
             MaximizeBox = false;
             FormBorderStyle = FormBorderStyle.FixedSingle;
 
@@ -274,7 +280,7 @@ namespace 五通道自动测试.Calibration
         {
             if (cmbSequencePreset != null && txtCustomSequence != null)
             {
-                txtCustomSequence.Visible = cmbSequencePreset.SelectedIndex == 3;
+                txtCustomSequence.Visible = cmbSequencePreset.SelectedIndex == 2;
             }
         }
 
@@ -392,10 +398,8 @@ namespace 五通道自动测试.Calibration
                 case 0:
                     return TemperaturePhaseVerificationService.GetSequence1();
                 case 1:
-                    return TemperaturePhaseVerificationService.GetSequence2();
-                case 2:
                     return TemperaturePhaseVerificationService.GetSequence3();
-                case 3:
+                case 2:
                     string input = txtCustomSequence.Text.Trim();
                     if (string.IsNullOrEmpty(input))
                     {

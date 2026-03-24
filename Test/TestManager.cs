@@ -919,6 +919,8 @@ namespace 五通道自动测试.Test
                 LogGenerated?.Invoke(this, "批量测试已取消");
                 // 清理资源
                 _instrumentManager.SignalGenerator.EnableOutput(false);
+                // 重新抛出异常，让上层能够捕获
+                throw;
             }
             finally
             {

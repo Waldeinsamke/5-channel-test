@@ -792,9 +792,16 @@ namespace 五通道自动测试
                 .Where(item => item != "端口驻波测试（输入）")
                 .ToList();
 
-            await _testManager.RunBatchTestAsync(channelsToTest, testItems);
+            try
+            {
+                await _testManager.RunBatchTestAsync(channelsToTest, testItems);
 
-            MessageBox.Show("批量测试已完成！", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("批量测试已完成！", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (OperationCanceledException)
+            {
+                MessageBox.Show("批量测试已取消", "取消", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         /// <summary>
